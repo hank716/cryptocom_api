@@ -1,0 +1,9 @@
+{
+  "method": "subscribe",
+  "params": {
+    "channels": [
+      "book.any low-volume instrument.10"
+    ]
+  },
+  "id": 1
+}
