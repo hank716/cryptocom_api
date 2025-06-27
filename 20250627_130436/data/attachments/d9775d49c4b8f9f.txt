@@ -1,5 +1,0 @@
-[FAIL] Assertion Failed
-Expected: TC6 - All timestamps are within the specified range
-Actual HTTP: 200
-Actual JSON Code: 0
-Reason: Timestamps out of range: [1750939500000, 1750939800000, 1750940100000, 1750940400000, 1750940700000]
