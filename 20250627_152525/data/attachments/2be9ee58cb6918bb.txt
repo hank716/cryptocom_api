@@ -1,0 +1,2 @@
+[PASS] Assertion Passed
+Reason: Missing parameters correctly returned error code: 40004
