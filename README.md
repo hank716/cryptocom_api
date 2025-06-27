@@ -1,158 +1,296 @@
 # 🧪 Crypto.com API Automation Framework
 
-This project is an end-to-end test automation framework for validating the public Crypto.com Exchange API — both REST and WebSocket endpoints — with extensibility and maintainability in mind.
+
+## 📑 Table of Contents
+
+- [📚 Tech Stack](#-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [🚀 Features](#-features)
+- [⚙️ Installation](#-installation)
+- [🧪 Test Execution](#-test-execution)
+- [📊 Test Coverage Summary](#-test-coverage-summary)
+- [🗓️ API Response Structures](#-api-response-structures)
+- [📊 Reports](#-reports)
+- [🔄 CI/CD Pipeline](#-cicd-pipeline)
+- [🌐 GitHub Pages](#-github-pages-deployment)
+- [📢 Notes](#-notes)
+- [🎯 Author](#-author)
+- [🔝 Back to Top](#-table-of-contents)
+
+
+
+## 📚 Tech Stack
+
+- **Language**: Python 3.10+
+- **Framework**: Behave (BDD)
+- **Assertion/Validation**: JSONSchema, built-in assert
+- **Reporting**: Allure + HTML static report
+- **CI/CD**: GitHub Actions
 
 ---
 
-## 📌 Features
+[🔝 Back to Top](#-table-of-contents)
 
-- ✅ Support for **REST API** testing: `public/get-candlestick`
-- ✅ Support for **WebSocket API** testing: `book.{instrument_name}.{depth}`
-- 🧠 Covers multiple test types: positive, negative, boundary, and schema validation
-- 🛠️ Built with **Python + Behave** (BDD-style testing)
-- 📊 Integrated with **Allure / HTML reports**
-- 🔁 Retry and reconnect logic for WebSocket
-- ☁️ Ready for GitHub Actions CI/CD
 
----
+## 🗂 Project Structure
 
-## 🗂️ Project Structure
-
-```bash
-crypto_api_automation/
-├── README.md                # Project instructions (this file)
-├── DESIGN.md                # Test strategy and design
-├── requirements.txt         # Python dependencies
-├── behave.ini               # Behave config
-├── features/
-│   ├── environment.py       # Global hooks (setup/teardown)
-│   ├── steps/
-│   │   ├── rest_steps.py    # Step definitions for REST
-│   │   └── ws_steps.py      # Step definitions for WebSocket
-│   ├── rest_api.feature     # Feature file for REST testing
-│   └── websocket.feature    # Feature file for WebSocket testing
+```
+cryptocom_api/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # CI pipeline: install → test → report artifacts
+├── features/                       # BDD feature & step files
+│   ├── rest_api.feature            # REST scenarios
+│   ├── websocket.feature           # WebSocket scenarios
+│   └── steps/
+│       ├── rest_steps.py           # implements REST steps
+│       └── ws_steps.py             # implements WebSocket steps
+│   └── environment.py          # hooks (before/after)
 ├── tests/
 │   ├── data/
-│   │   └── test_payloads.json   # Input data for testing
-│   ├── utils/
-│   │   ├── api_client.py        # Wrapper for REST calls
-│   │   ├── ws_client.py         # WebSocket client handler
-│   │   ├── schema_validator.py # JSON Schema validator
-│   │   └── logger.py            # Custom logging utility
-├── reports/                # Allure / HTML test report output
+│   │   └── test_payloads.json      # data‑driven test inputs
+│   └── utils/                      # reusable helper modules
+│       ├── api_client.py           # REST client
+│       ├── ws_client.py            # WebSocket wrapper (with reconnect)
+│       ├── schema_validator.py     # JSON schema checks
+│       └── logger.py               # consistent logging
+├── scripts/
+│   └── generate_report_index.py    # generates static HTML `docs/index.html`
+├── reports/
+│   └── allure-report/              # interactive Allure output
+├── docs/                           # static HTML reports (from scripts)
+├── .env                            # env config (e.g. base URL)
+├── deploy_reports.sh               # deploy `docs/` to GitHub Pages or server
+├── generate_allure_and_index.sh    # run tests → build Allure + docs
+├── preview.sh                      # open `docs/index.html` locally
+├── behave.ini                      # Behave configuration (tags, formatters)
+├── requirements.txt                # Python dependencies
+├── DESIGN.md                       # design doc + detailed test cases
+└── README.md                       # (this file)
 ```
 
 ---
 
-## 🚀 Quick Start
+## ⚙️ Installation
 
-### 1. Create Environment & Install Dependencies
+### 🧪 Test Execution
 
-```bash
-# Using conda
-conda create -n crypto_api_test python=3.11
-conda activate crypto_api_test
+1. 📦 Install dependencies:
 
-# Install required packages
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 2. Set Environment Variables
+2. ▶ Run all BDD scenarios:
 
-Create a `.env` file at the root:
+   ```bash
+   behave
+   ```
 
-```ini
-BASE_URL=https://api.crypto.com/v2
-WS_URL=wss://stream.crypto.com/v2/market
-```
+3. 🧪 Generate reports:
 
----
+   ```bash
+   bash generate_allure_and_index.sh
+   ```
 
-## 🧪 How to Run Tests
+4. 🌐 Preview locally:
 
-### ✅ Run REST API Tests
-
-```bash
-behave features/rest_api.feature
-```
-
-### ✅ Run WebSocket API Tests
-
-```bash
-behave features/websocket.feature
-```
-
-### 📊 View HTML Report
-
-After test execution:
-
-```bash
-open reports/index.html  # macOS
-# or
-xdg-open reports/index.html  # Linux
-```
+   ```bash
+   bash preview.sh
+   ```
 
 ---
 
-## 🧠 Test Coverage & Design Summary
+[🔝 Back to Top](#-table-of-contents)
 
-### REST API: `public/get-candlestick`
 
-- Status Code validation
-- Schema validation via `jsonschema`
-- Data validation: timestamp order, values
-- Negative test: invalid instrument/timeframe
-- Boundary test: max time window
+# 🧪 Crypto.com API Automation Framework
 
-### WebSocket API: `book.{instrument_name}.{depth}`
+## 📑 Table of Contents
 
-- Subscription confirmation check
-- Bid/ask structure and depth validation
-- Malformed topic handling
-- High frequency & reconnect scenarios
+- [📚 Tech Stack](#-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [🚀 Features](#-features)
+- [⚙️ Installation](#-installation)
+- [🧪 Test Execution](#-test-execution)
+- [📊 Test Coverage Summary](#-test-coverage-at-a-glance)
+- [🗓️ API Response Structures](#-api-response-structures)
+- [📊 Reports](#-how-to-view-allure-reports-locally)
+- [🔄 CI/CD Pipeline](#-cicd)
+- [🌐 GitHub Pages](#-github-pages-deployment)
+- [📢 Notes](#-why-this-architecture-matters)
+- [🎯 Author](#-author)
+- [🔝 Back to Top](#-table-of-contents)
 
----
 
-## 🔧 Tools Used
-
-| Tool              | Purpose                         |
-|-------------------|----------------------------------|
-| `Behave`          | BDD test definition & execution |
-| `requests`        | REST API client                 |
-| `websocket-client`| WebSocket connection            |
-| `jsonschema`      | Response schema validation      |
-| `dotenv` / `os`   | Env variable management         |
-| `Allure` / `pytest-html` | Report generation         |
+This is a robust, behavior‑driven API automation framework for Crypto.com Exchange **public APIs** — both **REST** and **WebSocket** — built with `Python` + `Behave`.
 
 ---
 
-## ⚙️ CI/CD Pipeline (GitHub Actions)
+## 🚀 Features
 
-Example workflow step:
-
-```yaml
-- name: Run REST & WS API Tests
-  run: behave features/
-
-- name: Upload Allure Report
-  uses: actions/upload-artifact@v3
-  with:
-    name: test-report
-    path: reports/
-```
+- ✅ BDD‑style API testing via `.feature` scenarios
+- 🔄 Supports both:
+  - REST: `public/get-candlestick`
+  - WebSocket: `book.{instrument_name}.{depth}`
+- 🧩 Test coverage:
+  - Positive / Negative / Boundary / Schema / Logical
+- ✅ JSON schema validation with `jsonschema`
+- 📊 Allure + static HTML reporting
+- ⚙ Modular architecture (API & WS clients, schema validator, logger)
+- 🔧 CI ready with GitHub Actions
 
 ---
 
-## 📌 Future Enhancements
+[🔝 Back to Top](#-table-of-contents)
 
-- ✅ Add support for private/secured API endpoints
-- ✅ Add database data verification layer
-- ✅ Multi-env support (Staging/Prod)
-- ✅ Performance/Load testing via Locust or K6
-- ✅ Daily scheduled health check pipelines
+
+## 📊 Test Coverage Summary
+
+| Area       | Endpoint                             | Coverage Types                                |
+|------------|--------------------------------------|----------------------------------------------|
+| REST API   | `/public/get-candlestick`           | Param validation, schema, chronological order |
+| WebSocket  | `book.{instrument_name}.{depth}`    | Subscribe, error handling, reconnect, flow   |
+
+See [DESIGN.md](./DESIGN.md) for full scenario breakdown.
 
 ---
 
-## 🧠 Author's Note
+## 🧱 Adding New Test Cases
 
-This framework is designed to be beginner-friendly yet scalable for teams. Feel free to fork and adapt it to suit your environment.
+1. **Add test input**  
+   Extend `tests/data/test_payloads.json` with new JSON objects (structured by scenario type).  
+   Example:
+   ```json
+   "new_candlestick_case": {
+     "instrument_name": "ETH_USDT",
+     "timeframe": "4h",
+     "expect_status": 200
+   }
+   ```
+
+2. **Edit or add `.feature` scenario**  
+   Add Scenario to `*.feature`, referencing the new payload key:
+   ```gherkin
+   Scenario Outline: Test new timeframe
+     Given I request candlestick "<key>"
+     Then I should receive valid data
+     Examples:
+       | key                  |
+       | new_candlestick_case |
+   ```
+
+3. **Implement or reuse step logic**  
+   Step definitions in `rest_steps.py` or `ws_steps.py` will read from payloads and execute logic.  
+   If needed, add new helper methods in `tests/utils/`.
+
+4. **(Optional) Add schema**  
+   If testing a brand-new endpoint or response type, update or add JSON schema in `schema_validator.py`.
+
+5. **Run & verify**  
+   Run `behave`, check reports under `reports/allure-results`, generate Allure & docs.
+
+6. **Push to repo**  
+   CI will auto-run tests and upload artifacts.
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 🗓️ API Response Structures
+
+### REST: `public/get-candlestick`
+- Format: JSON
+- Key fields:
+  - `o`, `h`, `l`, `c`, `v`, `t`: open/high/low/close/volume/timestamp
+- Ordered by `t` ascending
+
+### WebSocket: `book.{instrument_name}.{depth}`
+- Real-time stream of:
+  - `asks`: [[price, quantity], ...]
+  - `bids`: [[price, quantity], ...]
+  - `timestamp`, `instrument_name`, `depth`
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 📊 Reports
+
+1. **Install Allure CLI**  
+   - macOS: `brew install allure`  
+   - Ubuntu/Fedora: `sudo apt install allure`  
+   - Windows: Download from GitHub Releases, add `bin/` to `PATH`
+
+2. **Ensure Behave emits results**  
+   Confirm `behave.ini` contains:
+   ```ini
+   [behave.userdata]
+   allure_report_dir = reports/allure-results
+   ```
+
+3. **Generate the report**  
+   ```bash
+   allure generate reports/allure-results -o reports/allure-report --clean
+   ```
+
+4. **Open it**  
+   ```bash
+   allure open reports/allure-report
+   ```
+
+5. **Quick method**  
+   ```bash
+   bash generate_allure_and_index.sh
+   bash preview.sh
+   ```
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 🔄 CI/CD Pipeline
+
+- GitHub Actions workflow (`ci.yml`) installs dependencies, runs tests and uploads report artifacts on every push or PR.
+- You can enhance it to publish `docs/` to GitHub Pages via `deploy_reports.sh`.
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 🌐 GitHub Pages Deployment
+
+To deploy static HTML reports:
+
+1. Ensure `docs/index.html` exists (via `generate_report_index.py`)
+2. Enable GitHub Pages in repo settings, target `docs/` folder
+3. Optionally automate via `deploy_reports.sh`
+- 🔗 [Test report for this project](https://hank716.github.io/cryptocom_api/)
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 📢 Notes
+
+- **Readable** BDD scenarios separate logic from data
+- **Scalable**: add new endpoints without breaking structure
+- **Maintainable**: reusable utils + clean modular code
+- **Traceable**: Allure reports + consistent logging help debug quickly
+
+---
+
+[🔝 Back to Top](#-table-of-contents)
+
+
+## 🎯 Author
+
+**Hank**  
+🔗 [github.com/hank716](https://github.com/hank716)
+
+[🔝 Back to Top](#-table-of-contents)
