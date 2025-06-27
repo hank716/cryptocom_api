@@ -100,10 +100,9 @@ def step_given_ws_input(context, input):
             break
         time.sleep(0.5)
 
-
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
-    print("="*30)
+    print("=" * 30)
     print(f"[WebSocket] URL: {context.ws_url}")
     print(f"[WebSocket] Received {len(context.ws_messages)} messages")
     if context.ws_error:
@@ -115,22 +114,13 @@ def step_then_ws_expected(context, expected):
         attachment_type=allure.attachment_type.JSON
     )
 
-
-    # Logcat + Allure
     logcat_text = f"""WebSocket Assertion Evaluation:
 - Expected: {expected}
 - Message Count: {len(context.ws_messages)}
 - Error: {context.ws_error}
 - First Message: {json.dumps(context.ws_messages[:1], indent=2) if context.ws_messages else 'None'}
 """
-    print(logcat_text)
     allure.attach(logcat_text, name="WS Assertion Context", attachment_type=allure.attachment_type.TEXT)
-
-    allure.attach(
-        f"""✅ Assertion Passed\nReason: Subscription confirmed and depth book data received\nMessages Received: {len(context.ws_messages)}\n""",
-        name="WS Assertion Summary",
-        attachment_type=allure.attachment_type.TEXT
-    )
 
     expected = expected.lower()
 
@@ -138,6 +128,7 @@ def step_then_ws_expected(context, expected):
         if "subscription" in expected:
             subs = [m for m in context.ws_messages if "result" in m or "method" in m]
             assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
+
         if "bid/ask" in expected or "depth" in expected:
             book_data = None
             end_time = time.time() + 5
@@ -154,6 +145,7 @@ def step_then_ws_expected(context, expected):
             expected_depth = int(context.params["depth"])
             assert len(book_data["bids"]) <= expected_depth
             assert len(book_data["asks"]) <= expected_depth
+
         if "format" in expected:
             book_data = None
             for m in context.ws_messages:
@@ -164,11 +156,35 @@ def step_then_ws_expected(context, expected):
             assert isinstance(book_data.get("t", 0), int)
             assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
             assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
+
         if "error" in expected:
             assert is_error_response(context), "Expected error response but none found"
+
+        # ✅ 動態產出 Reason 描述
+        if "error" in expected:
+            reason = "Expected error response was correctly returned"
+        elif "bid/ask" in expected or "depth" in expected:
+            reason = "Subscription confirmed and depth book data received"
+        elif "subscription" in expected:
+            reason = "Subscription confirmation received"
+        else:
+            reason = "Condition met as per expectation"
+
+        allure.attach(
+            f"""✅ Assertion Passed
+Reason: {reason}
+Messages Received: {len(context.ws_messages)}
+""",
+            name="WS Assertion Summary",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
     except Exception as e:
         allure.attach(
-            f"""❌ Assertion Failed\nExpected: {expected}\nActual: WebSocket message count = {len(context.ws_messages)}, Error = {context.ws_error}\nReason: {str(e)}""",
+            f"""❌ Assertion Failed
+Expected: {expected}
+Actual: WebSocket message count = {len(context.ws_messages)}, Error = {context.ws_error}
+Reason: {str(e)}""",
             name="WS Assertion Error",
             attachment_type=allure.attachment_type.TEXT
         )
@@ -180,4 +196,5 @@ def step_then_ws_expected(context, expected):
         traceback.print_exc()
         raise
     finally:
-        print("="*30)
+        print("=" * 30)
+

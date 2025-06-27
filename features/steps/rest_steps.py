@@ -59,7 +59,6 @@ def step_then_rest_expected(context, expected):
 - JSON Code: {json_code}
 - Response Body: {context.response.text[:1000]}
 """
-
     print(logcat_text)
     allure.attach(logcat_text, name="Assertion Context", attachment_type=allure.attachment_type.TEXT)
 
