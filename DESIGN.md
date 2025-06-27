@@ -13,7 +13,7 @@ It uses the BDD (Behavior-Driven Development) approach with `Behave`, allowing t
 
 ## 📐 Test Case Design Principles
 
-We followed several principles for test case design:
+Followed several principles for test case design:
 
 - **Data-driven Testing**: test payloads are stored in JSON for parameterized execution
 - **Boundary Value Analysis**: especially for numeric fields such as depth or granularity
