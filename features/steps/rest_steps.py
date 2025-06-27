@@ -24,7 +24,7 @@ def parse_dynamic_time(expr):
     base_time = now
     expr = expr.replace("_ISO", "")
 
-    # 時區處理（僅偏移小時）
+    # timezone enhanced
     tz_offset = 0
     tz_match = re.search(r"_TZ_UTC([+-]?\d+)", expr)
     if tz_match:
@@ -93,7 +93,7 @@ def step_given_rest_input(context, input):
             context.params["end"] = str(int(time.time() * 1000))
 
 
-    # 動態時間格式轉換
+    # dynamic time format transfer
     for key in ["start", "end"]:
         if key in context.params:
             context.params[key] = parse_dynamic_time(context.params[key])
