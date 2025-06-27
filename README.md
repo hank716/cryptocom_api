@@ -19,6 +19,7 @@
 
 This is a robust, behavior‑driven API automation framework for Crypto.com Exchange public APIs — both REST and WebSocket — built with Python + Behave.
 
+---
 
 - [🔝 Back to Top](#-table-of-contents)
 
