@@ -1,0 +1,3 @@
+✅ Assertion Passed
+Reason: Subscription confirmed and depth book data received
+Messages Received: 5
