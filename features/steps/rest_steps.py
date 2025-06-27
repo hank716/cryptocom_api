@@ -48,7 +48,7 @@ def step_then_rest_expected(context, expected):
     print(f"[ASSERT] Status: {code}, JSON Code: {json_code}, Expected: {expected}")
 
     try:
-        if "code != 0" in expected_lower or "error message" in expected_lower or "400" in expected_lower:
+        if "code != 0" in expected_lower or "error message" in expected_lower:
             assert json_code != 0, f"Expected API error code, got code=0 and HTTP {code}"
         elif "200" in expected_lower:
             assert code == 200 and json_code == 0, f"Expected success, got HTTP {code}, code={json_code}"
