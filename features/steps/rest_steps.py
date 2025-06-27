@@ -1,10 +1,73 @@
-
 from behave import given, then
 import requests
 import traceback
 import allure
 import json
-import time
+
+
+def parse_dynamic_time(expr):
+    import time, re, datetime
+
+    def parse_base_time(ts_str):
+        try:
+            return int(datetime.datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%SZ")
+                       .replace(tzinfo=datetime.timezone.utc).timestamp() * 1000)
+        except ValueError:
+            raise ValueError(f"Invalid RELATIVE_TO timestamp format: {ts_str}")
+
+    now = int(time.time() * 1000)
+    is_iso = "_ISO" in expr
+    base_time = now
+    expr = expr.replace("_ISO", "")
+
+    # 時區處理（僅偏移小時）
+    tz_offset = 0
+    tz_match = re.search(r"_TZ_UTC([+-]?\d+)", expr)
+    if tz_match:
+        tz_offset = int(tz_match.group(1)) * 60 * 60 * 1000
+        expr = expr.replace(tz_match.group(0), "")
+
+    if expr == "NOW":
+        base_time = now
+    elif expr == "NOW_ISO":
+        return datetime.datetime.utcfromtimestamp(now / 1000).isoformat() + "Z"
+    elif expr.startswith("RELATIVE_TO_"):
+        m = re.match(r"RELATIVE_TO_(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)(_MINUS_|_PLUS_)?(.*)?", expr)
+        if not m:
+            raise ValueError(f"Invalid RELATIVE_TO format: {expr}")
+        base_time = parse_base_time(m.group(1))
+        direction = -1 if m.group(2) == "_MINUS_" else 1
+        expr = m.group(3)
+    elif expr.startswith("NOW_MINUS_"):
+        direction = -1
+        expr = expr.replace("NOW_MINUS_", "")
+    elif expr.startswith("NOW_PLUS_"):
+        direction = 1
+        expr = expr.replace("NOW_PLUS_", "")
+    else:
+        return expr
+
+    direction = locals().get("direction", -1)
+    total_ms = 0
+    matches = re.findall(r"(\d+)(MS|S|M|H|D)", expr.upper())
+    for value, unit in matches:
+        value = int(value)
+        if unit == "MS":
+            total_ms += value
+        elif unit == "S":
+            total_ms += value * 1000
+        elif unit == "M":
+            total_ms += value * 60 * 1000
+        elif unit == "H":
+            total_ms += value * 60 * 60 * 1000
+        elif unit == "D":
+            total_ms += value * 24 * 60 * 60 * 1000
+
+    final_time = base_time + direction * total_ms + tz_offset
+    if is_iso:
+        return datetime.datetime.utcfromtimestamp(final_time / 1000).isoformat() + "Z"
+    return str(final_time)
+
 
 @given('REST test input "{input}"')
 def step_given_rest_input(context, input):
@@ -23,12 +86,13 @@ def step_given_rest_input(context, input):
             elif "missing" in pair.lower():
                 continue
 
+            context.params["end"] = str(int(time.time() * 1000))
 
-    if "start" in context.params and context.params["start"] == "NOW_MINUS_1H":
-        now = int(time.time() * 1000)
-        context.params["start"] = str(now - 60 * 60 * 1000)
-    if "end" in context.params and context.params["end"] == "NOW":
-        context.params["end"] = str(int(time.time() * 1000))
+
+    # 動態時間格式轉換
+    for key in ["start", "end"]:
+        if key in context.params:
+            context.params[key] = parse_dynamic_time(context.params[key])
 
     if "instrument_name" not in context.params and "timeframe" in context.params:
         context.params["instrument_name"] = "BTC_USDT"
