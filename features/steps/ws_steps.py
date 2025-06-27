@@ -160,7 +160,6 @@ def step_then_ws_expected(context, expected):
         if "error" in expected:
             assert is_error_response(context), "Expected error response but none found"
 
-        # ✅ 動態產出 Reason 描述
         if "error" in expected:
             reason = "Expected error response was correctly returned"
         elif "bid/ask" in expected or "depth" in expected:

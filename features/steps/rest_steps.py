@@ -62,20 +62,32 @@ def step_then_rest_expected(context, expected):
     print(logcat_text)
     allure.attach(logcat_text, name="Assertion Context", attachment_type=allure.attachment_type.TEXT)
 
-    allure.attach(
-        f"""✅ Assertion Passed\nReason: Expecting HTTP 200 and code == 0\nActual: HTTP {{code}}, JSON Code {{json_code}}\n""",
-        name="REST Assertion Summary",
-        attachment_type=allure.attachment_type.TEXT
-    )
-
     try:
         if "code != 0" in expected_lower or "error message" in expected_lower:
             assert json_code != 0, f"Expected API error code, got code=0 and HTTP {code}"
+            reason = "Expected error response was correctly returned"
         elif "200" in expected_lower:
             assert code == 200 and json_code == 0, f"Expected success, got HTTP {code}, code={json_code}"
+            reason = "Request succeeded with valid status and code == 0"
+        else:
+            reason = "Condition met"
+
+        allure.attach(
+            f"""✅ Assertion Passed
+Reason: {reason}
+Actual: HTTP {code}, JSON Code {json_code}
+""",
+            name="REST Assertion Summary",
+            attachment_type=allure.attachment_type.TEXT
+        )
+
     except Exception as e:
         allure.attach(
-            f"""❌ Assertion Failed\nExpected: {expected}\nActual HTTP: {code}\nActual JSON Code: {json_code}\nReason: {str(e)}""",
+            f"""❌ Assertion Failed
+Expected: {expected}
+Actual HTTP: {code}
+Actual JSON Code: {json_code}
+Reason: {str(e)}""",
             name="REST Assertion Error",
             attachment_type=allure.attachment_type.TEXT
         )
@@ -87,4 +99,4 @@ def step_then_rest_expected(context, expected):
         traceback.print_exc()
         raise
     finally:
-        print("="*30)
+        print("=" * 30)
