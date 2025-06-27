@@ -1,3 +1,4 @@
+
 from behave import given, then
 import websocket
 import json
@@ -50,9 +51,10 @@ def step_given_ws_input(context, input):
     if "depth" not in context.params:
         context.params["depth"] = "10"
 
-    allowed_symbols = {"BTC_USDT", "ETH_USDT", "CRO_USDT"}
-    if context.params["instrument_name"] not in allowed_symbols:
-        raise ValueError(f"Unsupported instrument_name: {context.params['instrument_name']}. Allowed: {allowed_symbols}")
+    if "tc4" not in input.lower():  # Symbols are restricted only if they are not TC4
+        allowed_symbols = {"BTC_USDT", "ETH_USDT", "CRO_USDT"}
+        if context.params["instrument_name"] not in allowed_symbols:
+            raise ValueError(f"Unsupported instrument_name: {context.params['instrument_name']}. Allowed: {allowed_symbols}")
 
     context.ws_messages = []
     context.ws_error = None
@@ -132,17 +134,23 @@ def assert_ws_tc4_error_expected(context):
     assert is_error_response(context), "Expected error response but none found"
 
 def assert_ws_tc5_depth_limit(context):
+    if not hasattr(context, 'book_data'):
+        assert_ws_tc2_orderbook_present(context)
     book_data = getattr(context, "book_data", None)
     assert book_data, "Missing book_data"
     assert len(book_data["bids"]) <= int(context.params["depth"])
     assert len(book_data["asks"]) <= int(context.params["depth"])
 
 def assert_ws_tc6_bid_ask_not_empty(context):
+    if not hasattr(context, 'book_data'):
+        assert_ws_tc2_orderbook_present(context)
     book_data = getattr(context, "book_data", None)
     assert book_data, "Missing book_data"
     assert len(book_data["bids"]) > 0 and len(book_data["asks"]) > 0, "Bid or ask list is empty"
 
 def assert_ws_tc7_price_quantity_type(context):
+    if not hasattr(context, 'book_data'):
+        assert_ws_tc2_orderbook_present(context)
     book_data = getattr(context, "book_data", None)
     for bid in book_data.get("bids", []):
         assert isinstance(float(bid[0]), float)
