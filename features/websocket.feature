@@ -1,37 +1,40 @@
-Feature: WebSocket API: book.{instrument_name}.{depth}
+# Most scenarios use the same WebSocket channel input.
+# We vary the assertions (Then step) to test different logic aspects on the same stream.
 
-  Scenario: WS-TC1 - Successful subscription returns order book
+Feature: WebSocket Book Channel Tests
+
+  Scenario: WS-TC1 - Validate subscription success
     Given WS test input "BTC_USDT, depth=10"
-    Then WS expected result should be "subscription confirmed with bid/ask data received"
+    Then WS expected result should be "TC1"
 
-  Scenario: WS-TC2 - Verify subscription confirmation message
-    Given WS test input "valid channel format"
-    Then WS expected result should be "successful subscription message received"
+  Scenario: WS-TC2 - Validate orderbook data presence
+    Given WS test input "BTC_USDT, depth=10"
+    Then WS expected result should be "TC2"
 
   Scenario: WS-TC3 - Validate data field types
-    Given WS test input "price/quantity as float, timestamp as integer"
-    Then WS expected result should be "data format is valid"
+    Given WS test input "BTC_USDT, depth=10"
+    Then WS expected result should be "TC3"
 
-  Scenario: WS-TC4 - Subscribe with maximum depth
-    Given WS test input "depth=150"
-    Then WS expected result should be "number of bid/ask matches depth"
+  Scenario: WS-TC4 - Validate error handling
+    Given WS test input "INVALID_SYMBOL, depth=10"
+    Then WS expected result should be "TC4"
 
-  Scenario: WS-TC5 - Rapid multiple subscriptions
-    Given WS test input "subscribe to multiple instruments rapidly"
-    Then WS expected result should be "all subscriptions succeed without disconnection"
+  Scenario: WS-TC5 - Validate orderbook depth limit
+    Given WS test input "BTC_USDT, depth=5"
+    Then WS expected result should be "TC5"
 
-  Scenario: WS-TC6 - Subscribe to inactive market with no real-time data
-    Given WS test input "CRO_ETH, depth=10"
-    Then WS expected result should be "no data received but connection remains stable"
+  Scenario: WS-TC6 - Validate bid/ask data not empty
+    Given WS test input "BTC_USDT, depth=10"
+    Then WS expected result should be "TC6"
 
-  Scenario: WS-TC7 - Subscribe with invalid instrument name
-    Given WS test input "book.INVALID_COIN.10"
-    Then WS expected result should be "error message returned"
+  Scenario: WS-TC7 - Validate bid/ask price and quantity types
+    Given WS test input "BTC_USDT, depth=10"
+    Then WS expected result should be "TC7"
 
-  Scenario: WS-TC8 - Subscribe with invalid depth value
-    Given WS test input "depth='abc' or -10"
-    Then WS expected result should be "error message returned"
+  Scenario: WS-TC8 - Validate timestamp order
+    Given WS test input "BTC_USDT, depth=10"
+    Then WS expected result should be "TC8"
 
-  Scenario: WS-TC9 - No updates received after timeout
-    Given WS test input "any low-volume instrument"
-    Then WS expected result should be "no updates during wait, no disconnection or exceptions"
+  Scenario: WS-TC9 - Validate no duplicate subscription IDs
+    Given WS test input "book.BTC_USDT.10"
+    Then WS expected result should be "TC9"
