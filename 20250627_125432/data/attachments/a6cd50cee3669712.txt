@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: Expected error response (HTTP 200, JSON Code 40004)

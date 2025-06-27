@@ -1,5 +1,0 @@
-REST Assertion Evaluation:
-- Expected: Result contains at most 5000 entries, HTTP 200 and stable response
-- HTTP Status: 200
-- JSON Code: 0
-- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"1m","data":[{"o":"106885.35","h":"106926.00","l":"106885.35","c":"106926.00","v":"0.50975","t":1751010900000},{"o":"106923.38","h":"106954.99","l":"106922.00","c":"106940.00","v":"1.81944","t":1751010960000},{"o":"106930.01","

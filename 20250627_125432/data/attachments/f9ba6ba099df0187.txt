@@ -1,3 +1,0 @@
-✅ Assertion Passed
-Reason: Subscription confirmation received
-Messages Received: 4
