@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+*.log
+.env
+.venv
+env/
+venv/
+
+# VS Code
+.vscode/
+
+# Allure test reports (不要放進 main)
+reports/
+docs/
+
+# OS / Editor
+.DS_Store
+*.swp
+
+# Coverage & packaging
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+
+# Jupyter / Behave
+.ipynb_checkpoints/
+*.output

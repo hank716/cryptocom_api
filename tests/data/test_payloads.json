@@ -1,0 +1,14 @@
+{
+  "valid_candlestick": {
+    "instrument_name": "BTC_USDT",
+    "timeframe": "5m"
+  },
+  "invalid_candlestick": {
+    "instrument_name": "",
+    "timeframe": "1h"
+  },
+  "book_subscribe": {
+    "instrument_name": "BTC_USDT",
+    "depth": 10
+  }
+}

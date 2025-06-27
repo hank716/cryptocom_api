@@ -1,0 +1,9 @@
+behave
+requests
+websocket-client
+jsonschema
+python-dotenv
+pytest-html
+allure-behave
+allure-pytest
+pytest     
