@@ -1,0 +1,3 @@
+✅ Assertion Passed
+Reason: Expected error response was correctly returned
+Actual: HTTP 200, JSON Code 40004
