@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: Timestamps are spaced ~60 seconds apart
