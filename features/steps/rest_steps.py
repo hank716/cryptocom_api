@@ -5,7 +5,7 @@ import allure
 import json
 import time
 import re
-from datetime import datetime
+import datetime
 
 
 def parse_dynamic_time(expr):
@@ -32,7 +32,7 @@ def parse_dynamic_time(expr):
     if expr == "NOW":
         base_time = now
     elif expr == "NOW_ISO":
-        return datetime.datetime.utcfromtimestamp(now / 1000).isoformat() + "Z"
+        return datetime.utcfromtimestamp(now / 1000).isoformat() + "Z"
     elif expr.startswith("RELATIVE_TO_"):
         m = re.match(r"RELATIVE_TO_(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)(_MINUS_|_PLUS_)?(.*)?", expr)
         if not m:
@@ -67,7 +67,7 @@ def parse_dynamic_time(expr):
 
     final_time = base_time + direction * total_ms + tz_offset
     if is_iso:
-        return datetime.datetime.utcfromtimestamp(final_time / 1000).isoformat() + "Z"
+        return datetime.utcfromtimestamp(final_time / 1000).isoformat() + "Z"
     return str(final_time)
 
 
