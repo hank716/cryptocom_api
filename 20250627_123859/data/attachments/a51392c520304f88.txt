@@ -1,0 +1,3 @@
+✅ Assertion Passed
+Reason: API returned expected error: HTTP 200, JSON Code 40004
+Actual: HTTP 200, JSON Code 40004
