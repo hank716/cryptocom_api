@@ -59,39 +59,50 @@ def step_then_rest_expected(context, expected):
     allure.attach("\n".join(logcat_lines), name="REST Assertion Evaluation", attachment_type=allure.attachment_type.TEXT)
 
     try:
-        if "code != 0" in expected_lower or "error message" in expected_lower or "400" in expected_lower:
-            assert json_code != 0, f"Expected API error code, got code=0 and HTTP {code}"
-            reason = f"Expected error response (HTTP {code}, JSON Code {json_code})"
+        if "tc1" in expected_lower:
+            assert code == 200 and json_code == 0, "Expected success response"
+            assert len(data) > 1, "Expected multiple candlestick entries"
+            reason = f"Valid request returned {len(data)} candlesticks"
 
-        elif "code == 0" in expected_lower or "success" in expected_lower or "http 200" in expected_lower:
-            assert code == 200 and json_code == 0, f"Expected success, got HTTP {code}, code={json_code}"
-            reason = f"Request succeeded (HTTP 200, Code 0)"
+        elif "tc2" in expected_lower:
+            timestamps = [int(d["t"]) for d in data[:10]]
+            diffs = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
+            assert all(abs(diff - 60000) <= 1000 for diff in diffs), f"Timestamps not 1-min apart: {diffs}"
+            reason = "Timestamps are spaced ~60 seconds apart"
 
-        elif "contains multiple entries" in expected_lower:
-            assert len(data) > 1, f"Expected multiple entries, got {len(data)}"
-            reason = f"Result contains multiple entries: {len(data)}"
+        elif "tc3" in expected_lower:
+            required_keys = {"t", "o", "h", "l", "c", "v"}
+            for i, d in enumerate(data[:5]):
+                assert isinstance(d, dict), f"Candlestick at index {i} is not a dict"
+                assert required_keys.issubset(d.keys()), f"Missing keys in candlestick {i}: {d}"
+            reason = "Candlestick entries have required fields"
 
-        elif "within the specified range" in expected_lower:
+        elif "tc4" in expected_lower:
+            assert len(data) <= 5000, f"Data too large: {len(data)} entries"
+            reason = f"Data within 5000 entry limit: {len(data)}"
+
+        elif "tc5" in expected_lower:
+            assert json_code != 0, "Expected error due to missing required parameter"
+            reason = f"API returned error as expected: JSON Code {json_code}"
+
+        elif "tc6" in expected_lower:
             start = int(context.params.get("start", 0))
             end = int(context.params.get("end", 1e20))
-            timestamps = [int(d[0]) for d in data]
+            timestamps = [int(d["t"]) for d in data]
             assert all(start <= ts <= end for ts in timestamps), f"Timestamps out of range: {timestamps[:5]}"
-            reason = f"All timestamps are within range: {start} ~ {end}"
+            reason = f"All timestamps within range: {start} ~ {end}"
 
-        elif "each candlestick contains" in expected_lower:
-            for i, d in enumerate(data[:5]):
-                assert isinstance(d, list) and len(d) >= 6, f"Invalid candlestick at index {i}: {d}"
-            reason = "First 5 candlesticks have expected fields"
+        elif "tc7" in expected_lower:
+            assert json_code != 0, f"Expected error for invalid instrument name, got code=0"
+            reason = f"Invalid instrument_name correctly returned error code: {json_code}"
 
-        elif "at most 5000 entries" in expected_lower:
-            assert len(data) <= 5000, f"Data has too many entries: {len(data)}"
-            reason = f"Data has {len(data)} entries, within expected limit"
+        elif "tc8" in expected_lower:
+            assert json_code != 0, f"Expected error for invalid timeframe format, got code=0"
+            reason = f"Invalid timeframe format correctly returned error code: {json_code}"
 
-        elif "timestamps reflect 1-minute intervals" in expected_lower:
-            timestamps = [int(d[0]) for d in data[:10]]
-            diffs = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
-            assert all(abs(diff - 60000) <= 1000 for diff in diffs), f"Intervals not ~1m: {diffs}"
-            reason = "Timestamps have ~60 sec intervals"
+        elif "tc9" in expected_lower:
+            assert json_code != 0, f"Expected error for missing parameters, got code=0"
+            reason = f"Missing parameters correctly returned error code: {json_code}"
 
         else:
             reason = f"Condition met (HTTP {code}, Code {json_code})"
