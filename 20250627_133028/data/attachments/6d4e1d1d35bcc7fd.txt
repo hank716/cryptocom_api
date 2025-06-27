@@ -1,0 +1,13 @@
+WebSocket Assertion Evaluation:
+- Expected: no data received but connection remains stable
+- Message Count: 4
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.CRO_ETH.10",
+    "message": "Unknown symbol"
+  }
+]
