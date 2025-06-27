@@ -26,12 +26,13 @@ html = """<!DOCTYPE html>
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4 text-center">
-            <img src="https://upload.wikimedia.org/wikipedia/en/b/b0/Crypto.com_logo.svg" width="40" class="me-2">
-            Available Test Reports
-        </h1>
+        <div class="text-center mb-3">
+            <img src="https://upload.wikimedia.org/wikipedia/en/b/b0/Crypto.com_logo.svg" width="100" style="margin-bottom: 10px;">
+        </div>
+        <h1 class="mb-4 text-center">Available Test Reports</h1>
         <ul class="list-group">
 """
+
 
 for i, entry in enumerate(entries):
     dt = datetime.strptime(entry, "%Y%m%d_%H%M%S")
