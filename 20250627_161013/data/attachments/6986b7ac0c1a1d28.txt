@@ -1,5 +1,0 @@
-REST Assertion Evaluation:
-- Expected: TC6 - All timestamps are within the specified range
-- HTTP Status: 200
-- JSON Code: 40004
-- Response Body: {"id":-1,"code":40004,"message":"Invalid instrument_name"}

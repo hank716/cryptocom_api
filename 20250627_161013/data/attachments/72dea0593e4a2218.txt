@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: API returned error as expected: JSON Code 40004
