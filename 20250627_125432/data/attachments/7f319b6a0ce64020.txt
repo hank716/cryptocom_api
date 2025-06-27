@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: code != 0 due to missing parameters
+- HTTP Status: 200
+- JSON Code: 40004
+- Response Body: {"id":-1,"code":40004,"message":"Invalid instrument_name"}

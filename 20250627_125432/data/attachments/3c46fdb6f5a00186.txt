@@ -1,0 +1,5 @@
+[FAIL] Assertion Failed
+Expected: Each candlestick contains timestamp, open, high, low, close, volume
+Actual HTTP: 200
+Actual JSON Code: 0
+Reason: Invalid candlestick at index 0: {'o': '107344.74', 'h': '107359.98', 'l': '107308.01', 'c': '107335.62', 'v': '1.83306', 't': 1750938900000}

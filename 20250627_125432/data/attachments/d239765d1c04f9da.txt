@@ -1,0 +1,5 @@
+[FAIL] Assertion Failed
+Expected: All timestamps are within the specified range
+Actual HTTP: 200
+Actual JSON Code: 0
+Reason: 0
