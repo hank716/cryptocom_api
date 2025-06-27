@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: TC1 - HTTP 200 and code == 0, result.data contains multiple entries
+- HTTP Status: 200
+- JSON Code: 0
+- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"5m","data":[{"o":"107650.97","h":"107773.98","l":"107602.65","c":"107712.00","v":"32.27066","t":1750949100000},{"o":"107720.01","h":"107737.80","l":"107498.02","c":"107547.53","v":"23.71751","t":1750949400000},{"o":"107538.01"

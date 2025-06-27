@@ -1,0 +1,9 @@
+{
+  "method": "subscribe",
+  "params": {
+    "channels": [
+      "book.subscribe to multiple instruments rapidly.10"
+    ]
+  },
+  "id": 1
+}

@@ -1,0 +1,4 @@
+❌ Assertion Failed
+Expected: data format is valid
+Actual: WebSocket message count = 1, Error = None
+Reason: No book data to validate format

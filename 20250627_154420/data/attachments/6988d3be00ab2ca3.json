@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.timestamp as integer.10",
+    "message": "Unknown symbol"
+  }
+]
