@@ -1,0 +1,2 @@
+❌ WS Assertion Failed
+Reason: No book data to validate format
