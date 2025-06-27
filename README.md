@@ -15,8 +15,12 @@
 - [🌐 GitHub Pages](#-github-pages-deployment)
 - [📢 Notes](#-notes)
 - [🎯 Author](#-author)
-- [🔝 Back to Top](#-table-of-contents)
 
+
+This is a robust, behavior‑driven API automation framework for Crypto.com Exchange public APIs — both REST and WebSocket — built with Python + Behave.
+
+
+- [🔝 Back to Top](#-table-of-contents)
 
 
 ## 📚 Tech Stack
@@ -102,28 +106,6 @@ cryptocom_api/
 ---
 
 [🔝 Back to Top](#-table-of-contents)
-
-
-# 🧪 Crypto.com API Automation Framework
-
-## 📑 Table of Contents
-
-- [📚 Tech Stack](#-tech-stack)
-- [📂 Project Structure](#-project-structure)
-- [🚀 Features](#-features)
-- [⚙️ Installation](#-installation)
-- [🧪 Test Execution](#-test-execution)
-- [📊 Test Coverage Summary](#-test-coverage-at-a-glance)
-- [🗓️ API Response Structures](#-api-response-structures)
-- [📊 Reports](#-how-to-view-allure-reports-locally)
-- [🔄 CI/CD Pipeline](#-cicd)
-- [🌐 GitHub Pages](#-github-pages-deployment)
-- [📢 Notes](#-why-this-architecture-matters)
-- [🎯 Author](#-author)
-- [🔝 Back to Top](#-table-of-contents)
-
-
-This is a robust, behavior‑driven API automation framework for Crypto.com Exchange **public APIs** — both **REST** and **WebSocket** — built with `Python` + `Behave`.
 
 ---
 
