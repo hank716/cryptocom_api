@@ -5,9 +5,7 @@ import allure
 import json
 import time
 import re
-import datetime
-
-
+from datetime import datetime
 
 
 def parse_dynamic_time(expr):
