@@ -1,2 +1,0 @@
-❌ WS Assertion Failed
-Reason: 'NoneType' object has no attribute 'get'

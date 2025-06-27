@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: Invalid instrument_name correctly returned error code: 40004
