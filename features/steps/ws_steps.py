@@ -104,9 +104,30 @@ def step_given_ws_input(context, input):
 def assert_ws_tc1_subscription(context):
     assert any("result" in m or "method" in m for m in context.ws_messages), "No subscription confirmation found"
 
+
 def assert_ws_tc2_orderbook_present(context):
     book_data = None
-    end_time = time.time() + 10
+    end_time = time.time() + 20  # 🔁 等待 20 秒
+    while time.time() < end_time:
+        for m in context.ws_messages:
+            if "result" in m and "data" in m["result"]:
+                data = m["result"]["data"]
+                if isinstance(data, list) and data:
+                    book_data = data[0]
+                    break
+        if book_data:
+            break
+        time.sleep(0.5)
+    if not book_data:
+        allure.attach(
+            json.dumps(context.ws_messages, indent=2),
+            name="All WS Messages",
+            attachment_type=allure.attachment_type.JSON
+        )
+    assert book_data, "No orderbook data with bids/asks found"
+    context.book_data = book_data
+
+    end_time = time.time() + 15
     while time.time() < end_time:
         for m in context.ws_messages:
             if "result" in m and "data" in m["result"]:
@@ -115,6 +136,8 @@ def assert_ws_tc2_orderbook_present(context):
         if book_data:
             break
         time.sleep(0.5)
+    if not book_data:
+        allure.attach(json.dumps(context.ws_messages, indent=2), name="All WS Messages", attachment_type=allure.attachment_type.JSON)
     assert book_data, "No orderbook data with bids/asks found"
     context.book_data = book_data
 
