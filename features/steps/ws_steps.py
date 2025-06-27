@@ -102,71 +102,80 @@ def step_given_ws_input(context, input):
 
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
-    with allure.step("Attach WebSocket message snapshot"):
-        allure.attach(
-            json.dumps(context.ws_messages[:10], indent=2),
-            name="WS Messages Snapshot",
-            attachment_type=allure.attachment_type.JSON
-        )
+    print("="*30)
+    print(f"[WebSocket] URL: {context.ws_url}")
+    print(f"[WebSocket] Received {len(context.ws_messages)} messages")
+    if context.ws_error:
+        print(f"[WebSocket ERROR]: {context.ws_error}")
+    print("[DEBUG] First few WebSocket messages:")
+    allure.attach(
+        json.dumps(context.ws_messages[:10], indent=2),
+        name="WS Messages Snapshot",
+        attachment_type=allure.attachment_type.JSON
+    )
 
+    # Logcat + Allure
     logcat_text = f"""WebSocket Assertion Evaluation:
 - Expected: {expected}
 - Message Count: {len(context.ws_messages)}
 - Error: {context.ws_error}
 - First Message: {json.dumps(context.ws_messages[:1], indent=2) if context.ws_messages else 'None'}
 """
+    print(logcat_text)
     allure.attach(logcat_text, name="WS Assertion Context", attachment_type=allure.attachment_type.TEXT)
 
+    allure.attach(
+        f"""✅ Assertion Passed\nReason: Subscription confirmed and depth book data received\nMessages Received: {len(context.ws_messages)}\n""",
+        name="WS Assertion Summary",
+        attachment_type=allure.attachment_type.TEXT
+    )
+
+    expected = expected.lower()
+
     try:
-        with allure.step("Evaluate WS subscription confirmation"):
-            if "subscription" in expected.lower():
-                subs = [m for m in context.ws_messages if "result" in m or "method" in m]
-                assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
-
-        with allure.step("Evaluate WS order book content"):
-            if "bid/ask" in expected.lower() or "depth" in expected.lower():
-                book_data = None
-                end_time = time.time() + 5
-                while time.time() < end_time:
-                    for m in context.ws_messages:
-                        if "result" in m and "data" in m["result"]:
-                            book_data = m["result"]["data"][0]
-                            break
-                    if book_data:
-                        break
-                    time.sleep(0.5)
-                assert book_data, "No orderbook data with bids/asks found"
-                assert "bids" in book_data and "asks" in book_data
-                expected_depth = int(context.params["depth"])
-                assert len(book_data["bids"]) <= expected_depth
-                assert len(book_data["asks"]) <= expected_depth
-
-        with allure.step("Evaluate WS data format"):
-            if "format" in expected.lower():
-                book_data = None
+        if "subscription" in expected:
+            subs = [m for m in context.ws_messages if "result" in m or "method" in m]
+            assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
+        if "bid/ask" in expected or "depth" in expected:
+            book_data = None
+            end_time = time.time() + 5
+            while time.time() < end_time:
                 for m in context.ws_messages:
                     if "result" in m and "data" in m["result"]:
                         book_data = m["result"]["data"][0]
                         break
-                assert book_data, "No book data to validate format"
-                assert isinstance(book_data.get("t", 0), int)
-                assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
-                assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
-
-        with allure.step("Evaluate WS error expectations"):
-            if "error" in expected.lower():
-                assert is_error_response(context), "Expected error response but none found"
-
-        allure.attach(
-            f"Assertion passed.\nMessages received: {len(context.ws_messages)}",
-            name="WS Assertion Summary",
-            attachment_type=allure.attachment_type.TEXT
-        )
-
+                if book_data:
+                    break
+                time.sleep(0.5)
+            assert book_data, "No orderbook data with bids/asks found"
+            assert "bids" in book_data and "asks" in book_data
+            expected_depth = int(context.params["depth"])
+            assert len(book_data["bids"]) <= expected_depth
+            assert len(book_data["asks"]) <= expected_depth
+        if "format" in expected:
+            book_data = None
+            for m in context.ws_messages:
+                if "result" in m and "data" in m["result"]:
+                    book_data = m["result"]["data"][0]
+                    break
+            assert book_data, "No book data to validate format"
+            assert isinstance(book_data.get("t", 0), int)
+            assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
+            assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
+        if "error" in expected:
+            assert is_error_response(context), "Expected error response but none found"
     except Exception as e:
         allure.attach(
-            f"Exception: {str(e)}\nTraceback:\n{traceback.format_exc()}",
+            f"""❌ Assertion Failed\nExpected: {expected}\nActual: WebSocket message count = {len(context.ws_messages)}, Error = {context.ws_error}\nReason: {str(e)}""",
             name="WS Assertion Error",
             attachment_type=allure.attachment_type.TEXT
         )
+        allure.attach(
+            f"Assertion failed.\nMessages:\n{json.dumps(context.ws_messages, indent=2)}\nError:\n{context.ws_error}",
+            name="WS Assertion Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
+        traceback.print_exc()
         raise
+    finally:
+        print("="*30)
