@@ -3,6 +3,8 @@ import requests
 import traceback
 import allure
 
+import allure
+
 @given('REST test input "{input}"')
 def step_given_rest_input(context, input):
     context.params = {}
@@ -25,7 +27,13 @@ def step_given_rest_input(context, input):
 
     context.base_url = context.base_url or "https://api.crypto.com/v2"
     url = f"{context.base_url}/public/get-candlestick"
-    context.response = requests.get(url, params=context.params)
+    with allure.step("Send REST API request"):
+        context.response = requests.get(url, params=context.params)
+        allure.attach(
+            f"URL: {url}\nParams: {context.params}",
+            name="Request Details",
+            attachment_type=allure.attachment_type.TEXT
+        )
 
     print("="*30)
     print(f"[REST] Request: {url}")
@@ -59,7 +67,12 @@ def step_then_rest_expected(context, expected):
             assert json_code != 0, f"Expected API error code, got code=0 and HTTP {code}"
         elif "200" in expected_lower:
             assert code == 200 and json_code == 0, f"Expected success, got HTTP {code}, code={json_code}"
-    except Exception:
+    except Exception as e:
+        allure.attach(
+            f"Exception: {str(e)}\nTraceback:\n{traceback.format_exc()}",
+            name="REST Assertion Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
         allure.attach(
             f"Assertion failed.\nStatus: {code}\nJSON Code: {json_code}\nResponse: {context.response.text}",
             name="REST Assertion Error",

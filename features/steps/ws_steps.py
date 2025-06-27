@@ -25,6 +25,8 @@ def is_error_response(context):
                 return True
     return False
 
+import allure
+
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
     context.params = {}
@@ -56,6 +58,16 @@ def step_given_ws_input(context, input):
     def on_message(ws, message):
         context.ws_messages.append(json.loads(message))
     def on_open(ws):
+        subscription = {
+            "method": "subscribe",
+            "params": {
+                "channels": [f"book.{context.params['instrument_name']}.{context.params['depth']}"]
+            },
+            "id": 1
+        }
+        ws.send(json.dumps(subscription))
+        allure.attach(json.dumps(subscription, indent=2), name="Sent Subscription", attachment_type=allure.attachment_type.JSON)
+    
         subscription = {
             "method": "subscribe",
             "params": {
@@ -96,7 +108,11 @@ def step_then_ws_expected(context, expected):
     if context.ws_error:
         print(f"[WebSocket ERROR]: {context.ws_error}")
     print("[DEBUG] First few WebSocket messages:")
-    print(json.dumps(context.ws_messages[:5], indent=2))
+    allure.attach(
+        json.dumps(context.ws_messages[:10], indent=2),
+        name="WS Messages Snapshot",
+        attachment_type=allure.attachment_type.JSON
+    )
 
     # Logcat + Allure
     logcat_text = f"""WebSocket Assertion Evaluation:
@@ -142,7 +158,12 @@ def step_then_ws_expected(context, expected):
             assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
         if "error" in expected:
             assert is_error_response(context), "Expected error response but none found"
-    except Exception:
+    except Exception as e:
+        allure.attach(
+            f"Exception: {str(e)}\nTraceback:\n{traceback.format_exc()}",
+            name="WS Assertion Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
         allure.attach(
             f"Assertion failed.\nMessages:\n{json.dumps(context.ws_messages, indent=2)}\nError:\n{context.ws_error}",
             name="WS Assertion Error",
