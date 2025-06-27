@@ -20,7 +20,7 @@ Feature: WebSocket Book Channel Tests
     Then WS expected result should be "TC4"
 
   Scenario: WS-TC5 - Validate orderbook depth limit
-    Given WS test input "BTC_USDT, depth=5"
+    Given WS test input "BTC_USDT, depth=10"
     Then WS expected result should be "TC5"
 
   Scenario: WS-TC6 - Validate bid/ask data not empty
