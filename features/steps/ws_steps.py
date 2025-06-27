@@ -74,14 +74,22 @@ def step_given_ws_input(context, input):
 
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
+    print(f"[WebSocket] URL: {context.ws_url}")
     print(f"[WebSocket] Received {len(context.ws_messages)} messages")
-    print(json.dumps(context.ws_messages[:1], indent=2))
+    if context.ws_error:
+        print(f"[WebSocket ERROR]: {context.ws_error}")
+    if not context.ws_url:
+        raise AssertionError("WebSocket URL is not set. Check if .env is loaded correctly.")
 
+    if not context.ws_messages and not context.ws_error:
+        raise AssertionError("No WebSocket messages or errors received. Possible connection failure.")
+
+    print(json.dumps(context.ws_messages[:1], indent=2))
     expected = expected.lower()
 
     if "subscription" in expected:
         subs = [m for m in context.ws_messages if "result" in m or "method" in m]
-        assert subs, "No subscription confirmation found"
+        assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
 
     if "bid/ask" in expected or "depth" in expected:
         book_data = None
@@ -123,3 +131,4 @@ def step_then_ws_expected(context, expected):
         has_error = any("error" in m or m.get("code", 0) != 0 for m in context.ws_messages)
         has_error = has_error or (context.ws_error is not None)
         assert has_error, "Expected error response but none found"
+
