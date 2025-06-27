@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.BTC_USDT.5",
+    "message": "Invalid depth"
+  },
+  {
+    "id": 1751041370476,
+    "method": "public/heartbeat",
+    "code": 0
+  }
+]

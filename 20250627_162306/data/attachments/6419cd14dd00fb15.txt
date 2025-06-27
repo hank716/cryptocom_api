@@ -1,0 +1,2 @@
+❌ WS Assertion Failed
+Reason: No orderbook data with bids/asks found
