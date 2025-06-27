@@ -100,6 +100,7 @@ def step_given_ws_input(context, input):
             break
         time.sleep(0.5)
 
+
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
     print("="*30)
@@ -113,6 +114,7 @@ def step_then_ws_expected(context, expected):
         name="WS Messages Snapshot",
         attachment_type=allure.attachment_type.JSON
     )
+
 
     # Logcat + Allure
     logcat_text = f"""WebSocket Assertion Evaluation:
