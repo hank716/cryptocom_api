@@ -1,0 +1,13 @@
+WebSocket Assertion Evaluation:
+- Expected: error message returned
+- Message Count: 3
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.INVALID_COIN.10",
+    "message": "Unknown symbol"
+  }
+]
