@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 
 REPORTS_DIR = "docs"
@@ -18,14 +19,15 @@ html = """<!DOCTYPE html>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
-        .container { max-width: 720px; }
+        .container { max-width: 800px; }
         .report-link:hover { background-color: #e2e6ea; }
+        .badge-space { margin-left: 10px; }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="mb-4 text-center">
-            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="40" class="me-2">
+            <img src="https://upload.wikimedia.org/wikipedia/en/7/70/Crypto.com_logo.svg" width="40" class="me-2">
             Available Test Reports
         </h1>
         <ul class="list-group">
@@ -34,10 +36,30 @@ html = """<!DOCTYPE html>
 for i, entry in enumerate(entries):
     dt = datetime.strptime(entry, "%Y%m%d_%H%M%S")
     pretty_time = dt.strftime("%Y-%m-%d %H:%M")
-    badge = ' <span class="badge bg-success">Latest</span>' if i == 0 else ""
+    report_path = os.path.join(REPORTS_DIR, entry)
+    summary_path = os.path.join(report_path, "widgets", "summary.json")
+
+    passed = failed = total = "?"
+    if os.path.exists(summary_path):
+        with open(summary_path) as f:
+            try:
+                data = json.load(f)
+                total = data.get("statistic", {}).get("total", "?")
+                passed = data.get("statistic", {}).get("passed", "?")
+                failed = data.get("statistic", {}).get("failed", "?")
+            except:
+                pass
+
+    badge_latest = ' <span class="badge bg-success">Latest</span>' if i == 0 else ""
+    badge_stats = f"""
+        <span class="badge bg-secondary badge-space">Total: {total}</span>
+        <span class="badge bg-success badge-space">Passed: {passed}</span>
+        <span class="badge bg-danger badge-space">Failed: {failed}</span>
+    """
+
     html += f'''  <li class="list-group-item d-flex justify-content-between align-items-center report-link">
     <a href="{entry}/index.html" class="text-decoration-none">{pretty_time}</a>
-    {badge}
+    <div>{badge_stats}{badge_latest}</div>
   </li>
 '''
 
@@ -51,4 +73,4 @@ html += """    </ul>
 with open(index_file_path, "w") as f:
     f.write(html)
 
-print(f"[✓] Enhanced index.html written to {index_file_path}")
+print(f"[✓] Enhanced index.html with stats written to {index_file_path}")
