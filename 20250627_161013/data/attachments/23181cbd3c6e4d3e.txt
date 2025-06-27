@@ -1,0 +1,3 @@
+URL: https://api.crypto.com/v2/public/get-candlestick
+Params: {'instrument_name': 'INVALID_COIN', 'end': '1751040606377'}
+Status: 200

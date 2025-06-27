@@ -1,0 +1,3 @@
+URL: https://api.crypto.com/v2/public/get-candlestick
+Params: {'instrument_name': 'BTC_USDT', 'end': '1751040603572', 'timeframe': '5m'}
+Status: 200
