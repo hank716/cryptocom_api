@@ -21,13 +21,9 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Install Allure CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-jre
-          wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.27.0.tgz
-          tar -zxvf allure-2.27.0.tgz
-          sudo mv allure-2.27.0 /opt/allure
-          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+        uses: simple-elf/allure-commandline-action@v2.10
+        with:
+          allure-version: '2.27.0'
 
       - name: Run Behave tests and generate report
         run: |
