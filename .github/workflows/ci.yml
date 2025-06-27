@@ -40,10 +40,12 @@ jobs:
         run: |
           behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results || true
           allure generate reports/allure-results -o reports/allure-report
-          mkdir -p docs
           timestamp=$(date +%Y%m%d_%H%M%S)
+          mkdir -p docs
           cp -r reports/allure-report "docs/$timestamp"
-          echo "<meta http-equiv='refresh' content='0; url=$timestamp/index.html'>" > docs/index.html
+
+      - name: Generate HTML report index
+        run: python scripts/generate_report_index.py
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
@@ -51,3 +53,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           publish_branch: gh-pages
+          keep_files: true
+

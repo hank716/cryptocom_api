@@ -1,34 +1,34 @@
-# scripts/generate_report_index.py
 import os
-from datetime import datetime
 
 REPORTS_DIR = "docs"
-entries = []
+index_file_path = os.path.join(REPORTS_DIR, "index.html")
 
-# 掃描所有 timestamp 報告資料夾
-for entry in sorted(os.listdir(REPORTS_DIR)):
-    full_path = os.path.join(REPORTS_DIR, entry)
-    if os.path.isdir(full_path) and entry != "assets":
-        entries.append(f'<li><a href="{entry}/index.html">{entry}</a></li>')
+entries = [
+    d for d in os.listdir(REPORTS_DIR)
+    if os.path.isdir(os.path.join(REPORTS_DIR, d)) and d.startswith("202")
+]
+entries.sort(reverse=True)  # 最新的放上面
 
-# 產生 index.html
-html_content = f"""<!DOCTYPE html>
-<html lang="en">
+html = """<!DOCTYPE html>
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Allure Report Index</title>
+    <title>Test Report Index</title>
 </head>
 <body>
-    <h1>📊 Allure Report Index</h1>
-    <p>Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <h1>Available Test Reports</h1>
     <ul>
-        {''.join(entries)}
-    </ul>
+"""
+
+for entry in entries:
+    html += f'        <li><a href="{entry}/index.html">{entry}</a></li>\n'
+
+html += """    </ul>
 </body>
 </html>
 """
 
-with open(os.path.join(REPORTS_DIR, "index.html"), "w") as f:
-    f.write(html_content)
+with open(index_file_path, "w") as f:
+    f.write(html)
 
-print("✅ Generated docs/index.html")
+print(f"[✓] index.html generated at {index_file_path}")
