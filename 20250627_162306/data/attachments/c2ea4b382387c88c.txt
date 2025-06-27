@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: Invalid timeframe format correctly returned error code: 40003
