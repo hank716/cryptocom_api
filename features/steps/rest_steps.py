@@ -4,6 +4,7 @@ import requests
 import traceback
 import allure
 import json
+import time
 
 @given('REST test input "{input}"')
 def step_given_rest_input(context, input):
@@ -21,6 +22,13 @@ def step_given_rest_input(context, input):
                 context.params[key.strip()] = value.strip()
             elif "missing" in pair.lower():
                 continue
+
+
+    if "start" in context.params and context.params["start"] == "NOW_MINUS_1H":
+        now = int(time.time() * 1000)
+        context.params["start"] = str(now - 60 * 60 * 1000)
+    if "end" in context.params and context.params["end"] == "NOW":
+        context.params["end"] = str(int(time.time() * 1000))
 
     if "instrument_name" not in context.params and "timeframe" in context.params:
         context.params["instrument_name"] = "BTC_USDT"
