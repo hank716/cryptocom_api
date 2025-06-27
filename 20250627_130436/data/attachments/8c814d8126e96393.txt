@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: TC6 - All timestamps are within the specified range
+- HTTP Status: 200
+- JSON Code: 0
+- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"5m","data":[{"o":"107379.14","h":"107437.99","l":"107280.36","c":"107323.25","v":"9.36914","t":1750939500000},{"o":"107323.25","h":"107323.25","l":"107209.44","c":"107247.39","v":"7.06248","t":1750939800000},{"o":"107247.39","

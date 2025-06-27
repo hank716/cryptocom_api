@@ -1,0 +1,3 @@
+"Epic","Feature","Story","FAILED","BROKEN","PASSED","SKIPPED","UNKNOWN"
+"","WebSocket API: book.{instrument_name}.{depth}","","0","0","9","0","0"
+"","REST API: public/get-candlestick","","1","0","8","0","0"
