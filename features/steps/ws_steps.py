@@ -4,6 +4,13 @@ import json
 import threading
 import time
 
+def is_error_response(context):
+    return (
+        any("error" in m or m.get("code", 0) != 0 for m in context.ws_messages)
+        or context.ws_error is not None
+        or all("result" not in m and "method" not in m for m in context.ws_messages)
+    )
+
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
     context.params = {}
@@ -84,7 +91,9 @@ def step_then_ws_expected(context, expected):
     if not context.ws_messages and not context.ws_error:
         raise AssertionError("No WebSocket messages or errors received. Possible connection failure.")
 
-    print(json.dumps(context.ws_messages[:1], indent=2))
+    print("[DEBUG] First few WebSocket messages:")
+    print(json.dumps(context.ws_messages[:5], indent=2))
+
     expected = expected.lower()
 
     if "subscription" in expected:
@@ -93,21 +102,15 @@ def step_then_ws_expected(context, expected):
 
     if "bid/ask" in expected or "depth" in expected:
         book_data = None
-        for m in context.ws_messages:
-            if "result" in m and "data" in m["result"]:
-                book_data = m["result"]["data"][0]
-                break
-
-        if not book_data:
-            timeout = time.time() + 5
-            while time.time() < timeout:
-                for m in context.ws_messages:
-                    if "result" in m and "data" in m["result"]:
-                        book_data = m["result"]["data"][0]
-                        break
-                if book_data:
+        end_time = time.time() + 5
+        while time.time() < end_time:
+            for m in context.ws_messages:
+                if "result" in m and "data" in m["result"]:
+                    book_data = m["result"]["data"][0]
                     break
-                time.sleep(0.5)
+            if book_data:
+                break
+            time.sleep(0.5)
 
         assert book_data, "No orderbook data with bids/asks found"
         assert "bids" in book_data and "asks" in book_data
@@ -128,7 +131,4 @@ def step_then_ws_expected(context, expected):
         assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
 
     if "error" in expected:
-        has_error = any("error" in m or m.get("code", 0) != 0 for m in context.ws_messages)
-        has_error = has_error or (context.ws_error is not None)
-        assert has_error, "Expected error response but none found"
-
+        assert is_error_response(context), "Expected error response but none found"
