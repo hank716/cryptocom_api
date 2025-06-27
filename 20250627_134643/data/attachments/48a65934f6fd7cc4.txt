@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: TC4 - Result contains at most 5000 entries, HTTP 200 and stable response
+- HTTP Status: 200
+- JSON Code: 0
+- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"1m","data":[{"o":"107010.02","h":"107098.01","l":"107010.02","c":"107020.00","v":"1.65888","t":1751014020000},{"o":"107020.01","h":"107059.01","l":"107020.01","c":"107054.68","v":"1.27812","t":1751014080000},{"o":"107054.68","
