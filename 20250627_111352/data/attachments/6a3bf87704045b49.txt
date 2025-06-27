@@ -1,0 +1,13 @@
+WebSocket Assertion Evaluation:
+- Expected: no updates during wait, no disconnection or exceptions
+- Message Count: 5
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.BTC_USDT.'abc' or -10",
+    "message": "Invalid depth"
+  }
+]
