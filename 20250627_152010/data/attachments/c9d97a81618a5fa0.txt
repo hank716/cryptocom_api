@@ -1,0 +1,4 @@
+Request: https://api.crypto.com/v2/public/get-candlestick
+Params: {'timeframe': 'abc', 'end': '1751037602071', 'instrument_name': 'BTC_USDT'}
+Status: 200
+Body: {"id":-1,"code":40003,"message":"Invalid request"}
