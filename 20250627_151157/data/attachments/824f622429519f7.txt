@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: TC3 - Each candlestick contains timestamp, open, high, low, close, volume
+- HTTP Status: 200
+- JSON Code: 0
+- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"5m","data":[{"o":"107043.09","h":"107167.98","l":"106967.50","c":"106993.10","v":"32.00942","t":1750947300000},{"o":"106991.13","h":"107167.84","l":"106954.02","c":"107066.02","v":"27.95319","t":1750947600000},{"o":"107087.42"
