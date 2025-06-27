@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: Response contains maximum allowed entries and system remains stable
+- HTTP Status: 200
+- JSON Code: 40004
+- Response Body: {"id":-1,"code":40004,"message":"Invalid instrument_name"}
