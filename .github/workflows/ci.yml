@@ -1,0 +1,46 @@
+name: CI & Deploy Allure Report
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Allure CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre
+          wget https://github.com/allure-framework/allure2/releases/latest/download/allure-2.27.0.tgz
+          tar -zxvf allure-2.27.0.tgz
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Run Behave tests and generate report
+        run: |
+          behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results
+          allure generate reports/allure-results -o reports/allure-report
+          mkdir -p docs
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          cp -r reports/allure-report "docs/$timestamp"
+          echo "<meta http-equiv='refresh' content='0; url=$timestamp/index.html'>" > docs/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
