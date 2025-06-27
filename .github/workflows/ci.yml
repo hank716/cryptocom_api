@@ -44,6 +44,13 @@ jobs:
           mkdir -p docs
           cp -r reports/allure-report "docs/$timestamp"
 
+      - name: Fetch existing gh-pages to preserve history
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin gh-pages
+          git worktree add gh-pages origin/gh-pages
+          cp -r gh-pages/* docs/ || true
+
       - name: Generate HTML report index
         run: python scripts/generate_report_index.py
 
