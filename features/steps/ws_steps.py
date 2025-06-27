@@ -25,8 +25,6 @@ def is_error_response(context):
                 return True
     return False
 
-import allure
-
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
     context.params = {}
@@ -57,6 +55,7 @@ def step_given_ws_input(context, input):
 
     def on_message(ws, message):
         context.ws_messages.append(json.loads(message))
+
     def on_open(ws):
         subscription = {
             "method": "subscribe",
@@ -67,17 +66,10 @@ def step_given_ws_input(context, input):
         }
         ws.send(json.dumps(subscription))
         allure.attach(json.dumps(subscription, indent=2), name="Sent Subscription", attachment_type=allure.attachment_type.JSON)
-    
-        subscription = {
-            "method": "subscribe",
-            "params": {
-                "channels": [f"book.{context.params['instrument_name']}.{context.params['depth']}"]
-            },
-            "id": 1
-        }
-        ws.send(json.dumps(subscription))
+
     def on_error(ws, error):
         context.ws_error = str(error)
+
     def on_close(ws, *_):
         context.ws_closed = True
 
@@ -170,7 +162,7 @@ def step_then_ws_expected(context, expected):
             reason = "Condition met as per expectation"
 
         allure.attach(
-            f"""✅ Assertion Passed
+            f"""\u2705 Assertion Passed
 Reason: {reason}
 Messages Received: {len(context.ws_messages)}
 """,
@@ -180,7 +172,7 @@ Messages Received: {len(context.ws_messages)}
 
     except Exception as e:
         allure.attach(
-            f"""❌ Assertion Failed
+            f"""\u274c Assertion Failed
 Expected: {expected}
 Actual: WebSocket message count = {len(context.ws_messages)}, Error = {context.ws_error}
 Reason: {str(e)}""",
@@ -196,4 +188,6 @@ Reason: {str(e)}""",
         raise
     finally:
         print("=" * 30)
-
+        # Ensure WebSocket connection is closed after test
+        if context.ws:
+            context.ws.close()
