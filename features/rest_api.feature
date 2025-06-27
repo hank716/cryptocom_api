@@ -21,7 +21,7 @@ Feature: REST API: public/get-candlestick
     Then REST expected result should be "TC5 - code != 0 due to missing instrument_name"
 
   Scenario: TC6 - Specific time range query
-    Given REST test input "start=NOW_MINUS_1H_ISO, end=NOW_ISO"
+    Given REST test input "start=RELATIVE_TO_2025-06-27T00:00:00Z_MINUS_2H_TZ_UTC+8, end=NOW_ISO"
     Then REST expected result should be "TC6 - All timestamps are within the specified range"
 
   Scenario: TC7 - Invalid instrument name

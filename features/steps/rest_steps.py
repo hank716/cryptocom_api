@@ -3,10 +3,14 @@ import requests
 import traceback
 import allure
 import json
+import time
+import re
+import datetime
+
+
 
 
 def parse_dynamic_time(expr):
-    import time, re, datetime
 
     def parse_base_time(ts_str):
         try:
