@@ -1,9 +1,0 @@
-[
-  {
-    "id": 1,
-    "method": "subscribe",
-    "code": 40003,
-    "channel": "book.CRO_ETH.10",
-    "message": "Unknown symbol"
-  }
-]

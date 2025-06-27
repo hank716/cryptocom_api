@@ -1,9 +1,0 @@
-[
-  {
-    "id": 1,
-    "method": "subscribe",
-    "code": 40003,
-    "channel": "book.subscribe to multiple instruments rapidly.10",
-    "message": "Unknown symbol"
-  }
-]

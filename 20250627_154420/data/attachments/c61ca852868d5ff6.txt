@@ -1,5 +1,0 @@
-REST Assertion Evaluation:
-- Expected: TC2 - HTTP 200 and timestamps reflect 1-minute intervals
-- HTTP Status: 200
-- JSON Code: 0
-- Response Body: {"id":-1,"method":"public/get-candlestick","code":0,"result":{"interval":"1m","data":[{"o":"107016.01","h":"107038.00","l":"107016.01","c":"107025.76","v":"0.64154","t":1751021100000},{"o":"107024.01","h":"107024.01","l":"106986.00","c":"106986.00","v":"0.2763","t":1751021160000},{"o":"106984.77","h
