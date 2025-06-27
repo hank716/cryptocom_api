@@ -45,7 +45,14 @@ def step_then_rest_expected(context, expected):
     json_code = context.response.json().get("code", None)
     expected_lower = expected.lower()
 
-    print(f"[ASSERT] Status: {code}, JSON Code: {json_code}, Expected: {expected}")
+    logcat_text = f"""REST Assertion Evaluation:
+- Expected: {expected}
+- HTTP Status: {code}
+- JSON Code: {json_code}
+- Response Body: {context.response.text[:1000]}
+"""
+    print(logcat_text)
+    allure.attach(logcat_text, name="Assertion Context", attachment_type=allure.attachment_type.TEXT)
 
     try:
         if "code != 0" in expected_lower or "error message" in expected_lower:

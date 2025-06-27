@@ -2,11 +2,11 @@ from behave import given, then
 import websocket
 import json
 import threading
-import traceback
 import time
+import traceback
+import allure
 
 def is_error_response(context):
-    # 等待最多 5 秒查看有無錯誤訊息或空回應
     timeout = time.time() + 5
     while time.time() < timeout:
         if context.ws_error:
@@ -15,8 +15,6 @@ def is_error_response(context):
             if "error" in m or m.get("code", 0) != 0:
                 return True
         time.sleep(0.5)
-
-    # 有成功訂閱，但無任何資料推送（silent fail）
     for m in context.ws_messages:
         if "result" in m and m["result"].get("status") == "success":
             has_data_push = any(
@@ -25,13 +23,11 @@ def is_error_response(context):
             )
             if not has_data_push:
                 return True
-
     return False
 
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
     context.params = {}
-
     if input.startswith("book."):
         parts = input.split(".")
         if len(parts) == 3:
@@ -48,7 +44,6 @@ def step_given_ws_input(context, input):
                 context.params["depth"] = pair.strip()
             else:
                 context.params["instrument_name"] = pair.strip()
-
     if "instrument_name" not in context.params:
         context.params["instrument_name"] = "BTC_USDT"
     if "depth" not in context.params:
@@ -60,7 +55,6 @@ def step_given_ws_input(context, input):
 
     def on_message(ws, message):
         context.ws_messages.append(json.loads(message))
-
     def on_open(ws):
         subscription = {
             "method": "subscribe",
@@ -70,10 +64,8 @@ def step_given_ws_input(context, input):
             "id": 1
         }
         ws.send(json.dumps(subscription))
-
     def on_error(ws, error):
         context.ws_error = str(error)
-
     def on_close(ws, *_):
         context.ws_closed = True
 
@@ -98,51 +90,65 @@ def step_given_ws_input(context, input):
 
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
+    print("="*30)
     print(f"[WebSocket] URL: {context.ws_url}")
     print(f"[WebSocket] Received {len(context.ws_messages)} messages")
     if context.ws_error:
         print(f"[WebSocket ERROR]: {context.ws_error}")
-    if not context.ws_url:
-        raise AssertionError("WebSocket URL is not set. Check if .env is loaded correctly.")
-
     print("[DEBUG] First few WebSocket messages:")
     print(json.dumps(context.ws_messages[:5], indent=2))
 
+    # Logcat + Allure
+    logcat_text = f"""WebSocket Assertion Evaluation:
+- Expected: {expected}
+- Message Count: {len(context.ws_messages)}
+- Error: {context.ws_error}
+- First Message: {json.dumps(context.ws_messages[:1], indent=2) if context.ws_messages else 'None'}
+"""
+    print(logcat_text)
+    allure.attach(logcat_text, name="WS Assertion Context", attachment_type=allure.attachment_type.TEXT)
+
     expected = expected.lower()
 
-    if "subscription" in expected:
-        subs = [m for m in context.ws_messages if "result" in m or "method" in m]
-        assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
-
-    if "bid/ask" in expected or "depth" in expected:
-        book_data = None
-        end_time = time.time() + 5
-        while time.time() < end_time:
+    try:
+        if "subscription" in expected:
+            subs = [m for m in context.ws_messages if "result" in m or "method" in m]
+            assert subs, f"No subscription confirmation found in messages: {context.ws_messages}"
+        if "bid/ask" in expected or "depth" in expected:
+            book_data = None
+            end_time = time.time() + 5
+            while time.time() < end_time:
+                for m in context.ws_messages:
+                    if "result" in m and "data" in m["result"]:
+                        book_data = m["result"]["data"][0]
+                        break
+                if book_data:
+                    break
+                time.sleep(0.5)
+            assert book_data, "No orderbook data with bids/asks found"
+            assert "bids" in book_data and "asks" in book_data
+            expected_depth = int(context.params["depth"])
+            assert len(book_data["bids"]) <= expected_depth
+            assert len(book_data["asks"]) <= expected_depth
+        if "format" in expected:
+            book_data = None
             for m in context.ws_messages:
                 if "result" in m and "data" in m["result"]:
                     book_data = m["result"]["data"][0]
                     break
-            if book_data:
-                break
-            time.sleep(0.5)
-
-        assert book_data, "No orderbook data with bids/asks found"
-        assert "bids" in book_data and "asks" in book_data
-
-        expected_depth = int(context.params["depth"])
-        assert len(book_data["bids"]) <= expected_depth, f"bids exceeded expected depth {expected_depth}"
-        assert len(book_data["asks"]) <= expected_depth, f"asks exceeded expected depth {expected_depth}"
-
-    if "format" in expected:
-        book_data = None
-        for m in context.ws_messages:
-            if "result" in m and "data" in m["result"]:
-                book_data = m["result"]["data"][0]
-                break
-        assert book_data, "No book data to validate format"
-        assert isinstance(book_data.get("t", 0), int)
-        assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
-        assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
-
-    if "error" in expected:
-        assert is_error_response(context), "Expected error response but none found"
+            assert book_data, "No book data to validate format"
+            assert isinstance(book_data.get("t", 0), int)
+            assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
+            assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
+        if "error" in expected:
+            assert is_error_response(context), "Expected error response but none found"
+    except Exception:
+        allure.attach(
+            f"Assertion failed.\nMessages:\n{json.dumps(context.ws_messages, indent=2)}\nError:\n{context.ws_error}",
+            name="WS Assertion Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
+        traceback.print_exc()
+        raise
+    finally:
+        print("="*30)
