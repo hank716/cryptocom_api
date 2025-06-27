@@ -200,6 +200,16 @@ def assert_ws_tc9_duplicate_subscription(context):
 def step_then_ws_expected(context, expected):
     expected = expected.lower()
 
+    # WebSocket 評估摘要 logcat
+    logcat_lines = [
+        "WebSocket Assertion Evaluation:",
+        f"- Expected: {expected}",
+        f"- Message Count: {len(context.ws_messages)}",
+        f"- Error: {context.ws_error}",
+        f"- First Message: {json.dumps(context.ws_messages[:1], indent=2) if context.ws_messages else 'None'}"
+    ]
+    allure.attach("\n".join(logcat_lines), name="WS Assertion Evaluation", attachment_type=allure.attachment_type.TEXT)
+
     try:
         if "tc1" in expected:
             assert_ws_tc1_subscription(context)
@@ -221,10 +231,13 @@ def step_then_ws_expected(context, expected):
             assert_ws_tc9_duplicate_subscription(context)
 
         allure.attach("✅ WS Assertion Passed", name="WS Assertion", attachment_type=allure.attachment_type.TEXT)
+
     except Exception as e:
         allure.attach(f"❌ WS Assertion Failed\nReason: {str(e)}", name="WS Assertion Error", attachment_type=allure.attachment_type.TEXT)
         traceback.print_exc()
         raise
+
     finally:
         if context.ws:
             context.ws.close()
+
