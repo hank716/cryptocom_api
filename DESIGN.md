@@ -1,58 +1,45 @@
-# 🧠 API Automation Design Document
+# Test Design Overview
 
-## 🔖 Project Overview
+This document summarises the scenarios implemented in the Behave suites.
 
-This project is designed to validate the functionality and reliability of Crypto.com Exchange public APIs (REST and WebSocket) using Python and Behave. The framework ensures modularity, scalability, and maintainability.
+---
 
-## 🧪 Test Coverage
+## REST: `public/get-candlestick`
 
-### ✅ Task 1: REST API — `public/get-candlestick`
+| ID  | Description                                                   |
+|-----|---------------------------------------------------------------|
+| TC1 | Valid request returns multiple candlestick entries.           |
+| TC2 | Different timeframe formats produce 1‑minute ordered data.    |
+| TC3 | Each entry contains timestamp, open, high, low, close, volume |
+| TC4 | `limit` parameter capped at 5000 records.                     |
+| TC5 | Missing required parameter results in non‑zero error code.    |
+| TC6 | Query for a specific time range returns only that range.      |
+| TC7 | Invalid instrument name returns an error response.            |
+| TC8 | Invalid timeframe string returns an error response.           |
+| TC9 | Calling the endpoint without parameters is rejected.          |
 
-**Test Focus:**
-- Valid/invalid `instrument_name` and `timeframe`
-- HTTP status codes
-- Data structure and field validation
-- Schema validation (using `jsonschema`)
+## WebSocket: `book.{instrument_name}.{depth}`
 
-### ✅ Task 2: WebSocket API — `book.{instrument_name}.{depth}`
+| ID     | Description                                                                |
+|--------|---------------------------------------------------------------------------|
+| WS-TC1 | Successful subscription returns bid/ask book data.                         |
+| WS-TC2 | Confirmation message is received for a valid subscription.                |
+| WS-TC3 | Bid/ask values are numeric and timestamp fields are integers.             |
+| WS-TC4 | Maximum depth subscription respects the requested depth limit.            |
+| WS-TC5 | Rapid subscriptions to multiple instruments do not disconnect the client. |
+| WS-TC6 | Subscribing to an inactive market keeps the connection open without data. |
+| WS-TC7 | Invalid instrument name yields an error message.                           |
+| WS-TC8 | Invalid depth value yields an error message.                               |
+| WS-TC9 | No updates within timeout results in no disconnection or exception.       |
 
-**Test Focus:**
-- Subscription confirmation
-- Correct bid/ask depth and structure
-- Error handling for invalid symbols
-- High-frequency subscription tests
+---
 
-## 🔍 Assertion Strategy
+## Assertion and Retry Strategy
 
-- Status code checks
-- JSON schema validation
-- Logical checks for sorted timestamps and correct field values
-- Bid/Ask field type verification (`float`)
+* Status code and error code validation.
+* JSON schema checks on REST responses.
+* Bid/ask data structure validation for WebSocket responses.
+* Automatic reconnects with re-subscription on WebSocket failure.
 
-## 🔁 Retry Strategy
+Environment details are read from `.env` to support different targets.
 
-- WebSocket auto reconnect with exponential backoff
-- Re-subscription upon reconnect
-
-## 🔐 Environment Configuration
-
-All endpoints are configured via `.env`:
-
-```ini
-BASE_URL=https://api.crypto.com/v2
-WS_URL=wss://stream.crypto.com/v2/market
-```
-
-## 🧱 Extensibility
-
-- Supports adding new endpoints and test cases
-- Can integrate database validation and performance tests
-- Suitable for CI/CD pipelines (e.g., GitHub Actions)
-
-## 📦 Tools
-
-- Behave (BDD testing)
-- requests, websocket-client
-- jsonschema
-- dotenv
-- Allure / HTML reports

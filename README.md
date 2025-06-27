@@ -1,140 +1,98 @@
-# 🧪 Crypto.com API Automation Framework
+# Crypto.com API Test Framework
 
-This project is an end-to-end test automation framework for validating the public Crypto.com Exchange API — both REST and WebSocket endpoints — with extensibility and maintainability in mind.
-
----
-
-## 📌 Features
-
-- ✅ Support for **REST API** testing: `public/get-candlestick`
-- ✅ Support for **WebSocket API** testing: `book.{instrument_name}.{depth}`
-- 🧠 Covers multiple test types: positive, negative, boundary, and schema validation
-- 🛠️ Built with **Python + Behave** (BDD-style testing)
-- 📊 Integrated with **Allure / HTML reports**
-- 🔁 Retry and reconnect logic for WebSocket
-- ☁️ Ready for GitHub Actions CI/CD
+This repository contains an automated test suite for the public Crypto.com Exchange API. The tests cover both REST and WebSocket endpoints using **Behave** and generate Allure/HTML reports.
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
-```bash
-crypto_api_automation/
-├── README.md                # Project instructions (this file)
-├── DESIGN.md                # Test strategy and design
+```
+cryptocom_api/
+├── features/                # BDD feature files and step code
+│   ├── rest_api.feature     # Scenarios for REST endpoints
+│   ├── websocket.feature    # Scenarios for WebSocket endpoints
+│   ├── steps/               # Step implementations
+│   └── environment.py       # Hooks and environment setup
+├── tests/                   # Helper utilities and sample data
+│   └── data/test_payloads.json
+├── DESIGN.md                # Test design and case overview
 ├── requirements.txt         # Python dependencies
-├── behave.ini               # Behave config
-├── features/
-│   ├── environment.py       # Global hooks (setup/teardown)
-│   ├── steps/
-│   │   ├── rest_steps.py    # Step definitions for REST
-│   │   └── ws_steps.py      # Step definitions for WebSocket
-│   ├── rest_api.feature     # Feature file for REST testing
-│   └── websocket.feature    # Feature file for WebSocket testing
-├── tests/
-│   ├── data/
-│   │   └── test_payloads.json   # Input data for testing
-│   ├── utils/
-│   │   ├── api_client.py        # Wrapper for REST calls
-│   │   ├── ws_client.py         # WebSocket client handler
-│   │   ├── schema_validator.py # JSON Schema validator
-│   │   └── logger.py            # Custom logging utility
-├── reports/                # Allure / HTML test report output
+└── README.md                # This document
 ```
 
 ---
 
-## 🚀 Quick Start
+## Setup
 
-### 1. Create Environment & Install Dependencies
+1. **Create a virtual environment** (conda or venv).
+2. Install dependencies from `requirements.txt`.
+3. Define `BASE_URL` and `WS_URL` in a `.env` file.
 
-```bash
-# Using conda
-conda create -n crypto_api_test python=3.11
-conda activate crypto_api_test
-
-# Install required packages
-pip install -r requirements.txt
 ```
-
-### 2. Set Environment Variables
-
-Create a `.env` file at the root:
-
-```ini
 BASE_URL=https://api.crypto.com/v2
 WS_URL=wss://stream.crypto.com/v2/market
 ```
 
 ---
 
-## 🧪 How to Run Tests
+## Running the Tests
 
-### ✅ Run REST API Tests
+Run all scenarios:
 
-```bash
-behave features/rest_api.feature
+```
+behave
 ```
 
-### ✅ Run WebSocket API Tests
+Run a specific feature file:
 
-```bash
+```
+behave features/rest_api.feature
 behave features/websocket.feature
 ```
 
-### 📊 View HTML Report
-
-After test execution:
-
-```bash
-open reports/index.html  # macOS
-# or
-xdg-open reports/index.html  # Linux
-```
+After execution, open `reports/index.html` to view the report.
 
 ---
 
-## 🧠 Test Coverage & Design Summary
+## Feature Summary
 
-### REST API: `public/get-candlestick`
+The framework verifies the public candlestick REST API and the order book WebSocket channel.
 
-- Status Code validation
-- Schema validation via `jsonschema`
-- Data validation: timestamp order, values
-- Negative test: invalid instrument/timeframe
-- Boundary test: max time window
+### REST Scenarios
 
-### WebSocket API: `book.{instrument_name}.{depth}`
+1. **TC1** – Valid request returns multiple candlesticks.
+2. **TC2** – Handles various timeframe formats.
+3. **TC3** – Each candlestick has timestamp, open, high, low, close and volume fields.
+4. **TC4** – Max limit request returns at most 5000 records.
+5. **TC5** – Missing required parameter triggers an error response.
+6. **TC6** – Query by specific time range returns data within that range.
+7. **TC7** – Invalid instrument name returns an error.
+8. **TC8** – Invalid timeframe format returns an error.
+9. **TC9** – No parameters provided returns an error code.
 
-- Subscription confirmation check
-- Bid/ask structure and depth validation
-- Malformed topic handling
-- High frequency & reconnect scenarios
+### WebSocket Scenarios
 
----
-
-## 🔧 Tools Used
-
-| Tool              | Purpose                         |
-|-------------------|----------------------------------|
-| `Behave`          | BDD test definition & execution |
-| `requests`        | REST API client                 |
-| `websocket-client`| WebSocket connection            |
-| `jsonschema`      | Response schema validation      |
-| `dotenv` / `os`   | Env variable management         |
-| `Allure` / `pytest-html` | Report generation         |
+1. **WS‑TC1** – Successful subscription returns order book data.
+2. **WS‑TC2** – Subscription confirmation message is verified.
+3. **WS‑TC3** – Bid/ask values are numeric and timestamp is integer.
+4. **WS‑TC4** – Depth limit respected for maximum depth subscription.
+5. **WS‑TC5** – Multiple rapid subscriptions do not disconnect the client.
+6. **WS‑TC6** – Subscribing to an inactive market keeps the connection stable.
+7. **WS‑TC7** – Invalid instrument name returns an error message.
+8. **WS‑TC8** – Invalid depth value returns an error message.
+9. **WS‑TC9** – No updates after timeout are handled without exceptions.
 
 ---
 
-## ⚙️ CI/CD Pipeline (GitHub Actions)
+## CI Example
 
-Example workflow step:
+A minimal GitHub Actions job might look like:
 
 ```yaml
-- name: Run REST & WS API Tests
-  run: behave features/
+- name: Run Behave tests
+  run: behave
 
-- name: Upload Allure Report
+- name: Archive report
   uses: actions/upload-artifact@v3
   with:
     name: test-report
@@ -143,16 +101,4 @@ Example workflow step:
 
 ---
 
-## 📌 Future Enhancements
-
-- ✅ Add support for private/secured API endpoints
-- ✅ Add database data verification layer
-- ✅ Multi-env support (Staging/Prod)
-- ✅ Performance/Load testing via Locust or K6
-- ✅ Daily scheduled health check pipelines
-
----
-
-## 🧠 Author's Note
-
-This framework is designed to be beginner-friendly yet scalable for teams. Feel free to fork and adapt it to suit your environment.
+This project aims to provide clear examples for exercising Crypto.com public APIs. Feel free to extend the scenarios or integrate new endpoints as required.
