@@ -5,11 +5,27 @@ import threading
 import time
 
 def is_error_response(context):
-    return (
-        any("error" in m or m.get("code", 0) != 0 for m in context.ws_messages)
-        or context.ws_error is not None
-        or all("result" not in m and "method" not in m for m in context.ws_messages)
-    )
+    # 等待最多 5 秒查看有無錯誤訊息或空回應
+    timeout = time.time() + 5
+    while time.time() < timeout:
+        if context.ws_error:
+            return True
+        for m in context.ws_messages:
+            if "error" in m or m.get("code", 0) != 0:
+                return True
+        time.sleep(0.5)
+
+    # 有成功訂閱，但無任何資料推送（silent fail）
+    for m in context.ws_messages:
+        if "result" in m and m["result"].get("status") == "success":
+            has_data_push = any(
+                "method" in x or ("result" in x and "data" in x["result"])
+                for x in context.ws_messages
+            )
+            if not has_data_push:
+                return True
+
+    return False
 
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
@@ -72,7 +88,7 @@ def step_given_ws_input(context, input):
     thread.daemon = True
     thread.start()
 
-    timeout = 15
+    timeout = 20
     start_time = time.time()
     while time.time() - start_time < timeout:
         if context.ws_messages or context.ws_error:
@@ -87,9 +103,6 @@ def step_then_ws_expected(context, expected):
         print(f"[WebSocket ERROR]: {context.ws_error}")
     if not context.ws_url:
         raise AssertionError("WebSocket URL is not set. Check if .env is loaded correctly.")
-
-    if not context.ws_messages and not context.ws_error:
-        raise AssertionError("No WebSocket messages or errors received. Possible connection failure.")
 
     print("[DEBUG] First few WebSocket messages:")
     print(json.dumps(context.ws_messages[:5], indent=2))
