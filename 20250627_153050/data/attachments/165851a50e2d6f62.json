@@ -1,0 +1,9 @@
+{
+  "method": "subscribe",
+  "params": {
+    "channels": [
+      "book.BTC_USDT.150"
+    ]
+  },
+  "id": 1
+}
