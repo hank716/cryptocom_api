@@ -23,6 +23,7 @@ html = """<!DOCTYPE html>
         .container { max-width: 800px; }
         .report-link:hover { background-color: #e2e6ea; }
         .badge-space { margin-left: 10px; }
+        .badge-latest { margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -52,7 +53,7 @@ for i, entry in enumerate(entries):
             except:
                 pass
 
-    badge_latest = ' <span class="badge bg-success">Latest</span>' if i == 0 else ""
+    badge_latest = '<span class="badge bg-success badge-latest">Latest</span>' if i == 0 else ""
     badge_stats = f"""
         <span class="badge bg-secondary badge-space">Total: {total}</span>
         <span class="badge bg-success badge-space">Passed: {passed}</span>
@@ -61,12 +62,13 @@ for i, entry in enumerate(entries):
 
     html += f'''  <li class="list-group-item d-flex justify-content-between align-items-center report-link">
     <div class="d-flex align-items-center">
+        <a href="{entry}/index.html" class="text-decoration-none">{pretty_time}</a>
         {badge_latest}
-        <a href="{entry}/index.html" class="text-decoration-none ms-2">{pretty_time}</a>
     </div>
     <div>{badge_stats}</div>
   </li>
 '''
+
 
 
 html += """    </ul>
