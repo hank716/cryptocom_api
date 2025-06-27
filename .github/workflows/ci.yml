@@ -8,6 +8,7 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,10 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Install Allure CLI
-        uses: simple-elf/allure-commandline-action@v2.10
-        with:
-          allure-version: '2.27.0'
+      - name: Install Allure CLI manually
+        run: |
+          wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -zxvf allure-2.27.0.tgz
+          echo "$PWD/allure-2.27.0/bin" >> $GITHUB_PATH
 
       - name: Run Behave tests and generate report
         run: |
