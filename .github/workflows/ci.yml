@@ -26,7 +26,7 @@ jobs:
           wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -zxvf allure-2.27.0.tgz
           echo "$PWD/allure-2.27.0/bin" >> $GITHUB_PATH
-          
+
       - name: Run Behave tests and generate report
         run: |
           behave -f allure_behave.formatter:AllureFormatter -o reports/allure-results || true
