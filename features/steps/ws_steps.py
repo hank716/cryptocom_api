@@ -25,7 +25,6 @@ def is_error_response(context):
                 return True
     return False
 
-import allure
 
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
@@ -68,14 +67,6 @@ def step_given_ws_input(context, input):
         ws.send(json.dumps(subscription))
         allure.attach(json.dumps(subscription, indent=2), name="Sent Subscription", attachment_type=allure.attachment_type.JSON)
     
-        subscription = {
-            "method": "subscribe",
-            "params": {
-                "channels": [f"book.{context.params['instrument_name']}.{context.params['depth']}"]
-            },
-            "id": 1
-        }
-        ws.send(json.dumps(subscription))
     def on_error(ws, error):
         context.ws_error = str(error)
     def on_close(ws, *_):
