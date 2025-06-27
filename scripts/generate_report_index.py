@@ -28,7 +28,7 @@ html = """<!DOCTYPE html>
 <body>
     <div class="container mt-5">
         <div class="text-center mb-3">
-            <img src="https://upload.wikimedia.org/wikipedia/en/b/b0/Crypto.com_logo.svg" width="800" style="margin-bottom: 10px;">
+            <img src="https://upload.wikimedia.org/wikipedia/en/b/b0/Crypto.com_logo.svg" width="500" style="margin-bottom: 10px;">
         </div>
         <h1 class="mb-4 text-center">Available Test Reports</h1>
         <ul class="list-group">
