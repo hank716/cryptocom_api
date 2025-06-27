@@ -1,0 +1,3 @@
+✅ Assertion Passed
+Reason: Expecting HTTP 200 and code == 0
+Actual: HTTP {code}, JSON Code {json_code}

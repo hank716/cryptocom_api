@@ -1,0 +1,12 @@
+WebSocket Assertion Evaluation:
+- Expected: subscription confirmed with bid/ask data received
+- Message Count: 3
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 0,
+    "channel": "book.BTC_USDT.10"
+  }
+]
