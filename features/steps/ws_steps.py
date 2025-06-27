@@ -51,7 +51,7 @@ def step_given_ws_input(context, input):
     if "depth" not in context.params:
         context.params["depth"] = "10"
 
-    if "tc4" not in input.lower():  # Symbols are restricted only if they are not TC4
+    if "tc4" not in context._stack[-1].name.lower():  # Symbols are restricted only if they are not TC4
         allowed_symbols = {"BTC_USDT", "ETH_USDT", "CRO_USDT"}
         if context.params["instrument_name"] not in allowed_symbols:
             raise ValueError(f"Unsupported instrument_name: {context.params['instrument_name']}. Allowed: {allowed_symbols}")
@@ -106,7 +106,7 @@ def assert_ws_tc1_subscription(context):
 
 def assert_ws_tc2_orderbook_present(context):
     book_data = None
-    end_time = time.time() + 5
+    end_time = time.time() + 10
     while time.time() < end_time:
         for m in context.ws_messages:
             if "result" in m and "data" in m["result"]:
@@ -119,6 +119,8 @@ def assert_ws_tc2_orderbook_present(context):
     context.book_data = book_data
 
 def assert_ws_tc3_validate_format(context):
+    if not hasattr(context, 'book_data'):
+        assert_ws_tc2_orderbook_present(context)
     book_data = getattr(context, "book_data", None)
     if not book_data:
         for m in context.ws_messages:
