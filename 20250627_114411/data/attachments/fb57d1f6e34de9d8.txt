@@ -1,0 +1,2 @@
+URL: https://api.crypto.com/v2/public/get-candlestick
+Params: {'instrument_name': 'BTC_USDT', 'timeframe': '5m'}

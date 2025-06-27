@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: HTTP 400 or code != 0
+- HTTP Status: 200
+- JSON Code: 40003
+- Response Body: {"id":-1,"code":40003,"message":"Invalid request"}
