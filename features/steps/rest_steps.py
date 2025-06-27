@@ -1,6 +1,7 @@
 from behave import given, then
 import requests
 import traceback
+import allure
 
 @given('REST test input "{input}"')
 def step_given_rest_input(context, input):
@@ -32,6 +33,12 @@ def step_given_rest_input(context, input):
     print(f"[REST] Status: {context.response.status_code}")
     print(f"[REST] Body: {context.response.text[:300]}")
 
+    allure.attach(
+        f"Request: {url}\nParams: {context.params}\nStatus: {context.response.status_code}\nBody: {context.response.text[:1000]}",
+        name="REST API Call",
+        attachment_type=allure.attachment_type.TEXT
+    )
+
 @then('REST expected result should be "{expected}"')
 def step_then_rest_expected(context, expected):
     code = context.response.status_code
@@ -46,7 +53,11 @@ def step_then_rest_expected(context, expected):
         elif "200" in expected_lower:
             assert code == 200 and json_code == 0, f"Expected success, got HTTP {code}, code={json_code}"
     except Exception:
-        print("[ASSERT ERROR]")
+        allure.attach(
+            f"Assertion failed.\nStatus: {code}\nJSON Code: {json_code}\nResponse: {context.response.text}",
+            name="REST Assertion Error",
+            attachment_type=allure.attachment_type.TEXT
+        )
         traceback.print_exc()
         raise
     finally:
