@@ -1,0 +1,13 @@
+WebSocket Assertion Evaluation:
+- Expected: number of bid/ask matches depth
+- Message Count: 3
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 40003,
+    "channel": "book.timestamp as integer.10",
+    "message": "Unknown symbol"
+  }
+]

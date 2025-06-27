@@ -1,0 +1,9 @@
+{
+  "method": "subscribe",
+  "params": {
+    "channels": [
+      "book.INVALID_COIN.10"
+    ]
+  },
+  "id": 1
+}
