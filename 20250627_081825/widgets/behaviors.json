@@ -1,1 +1,0 @@
-{"total":2,"items":[{"uid":"18bab2033cdbc05a98ccf1cc64054161","name":"WebSocket API: book.{instrument_name}.{depth}","statistic":{"failed":1,"broken":0,"skipped":0,"passed":8,"unknown":0,"total":9}},{"uid":"1657c89f470f43efeedd2e63a40151e8","name":"REST API: public/get-candlestick","statistic":{"failed":0,"broken":0,"skipped":0,"passed":9,"unknown":0,"total":9}}]}
