@@ -9,6 +9,10 @@ jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      WS_URL: ${{ secrets.WS_URL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,6 +24,11 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Inject .env from secrets
+        run: |
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+          echo "WS_URL=${{ secrets.WS_URL }}" >> .env
 
       - name: Install Allure CLI manually
         run: |
@@ -35,7 +44,6 @@ jobs:
           timestamp=$(date +%Y%m%d_%H%M%S)
           cp -r reports/allure-report "docs/$timestamp"
           echo "<meta http-equiv='refresh' content='0; url=$timestamp/index.html'>" > docs/index.html
-
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
