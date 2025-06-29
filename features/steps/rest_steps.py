@@ -1,3 +1,4 @@
+
 from behave import given, then
 import requests
 import traceback
@@ -7,7 +8,7 @@ import time
 import re
 import datetime
 
-
+# === Helper: Parse dynamic time expressions for start/end timestamps ===
 def parse_dynamic_time(expr):
 
     def parse_base_time(ts_str):
@@ -22,7 +23,7 @@ def parse_dynamic_time(expr):
     base_time = now
     expr = expr.replace("_ISO", "")
 
-    # timezone enhanced
+    # Check for timezone offset
     tz_offset = 0
     tz_match = re.search(r"_TZ_UTC([+-]?\d+)", expr)
     if tz_match:
@@ -32,7 +33,7 @@ def parse_dynamic_time(expr):
     if expr == "NOW":
         base_time = now
     elif expr == "NOW_ISO":
-        return datetime.utcfromtimestamp(now / 1000).isoformat() + "Z"
+        return datetime.datetime.utcfromtimestamp(now / 1000).isoformat() + "Z"
     elif expr.startswith("RELATIVE_TO_"):
         m = re.match(r"RELATIVE_TO_(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)(_MINUS_|_PLUS_)?(.*)?", expr)
         if not m:
@@ -67,20 +68,22 @@ def parse_dynamic_time(expr):
 
     final_time = base_time + direction * total_ms + tz_offset
     if is_iso:
-        return datetime.utcfromtimestamp(final_time / 1000).isoformat() + "Z"
+        return datetime.datetime.utcfromtimestamp(final_time / 1000).isoformat() + "Z"
     return str(final_time)
 
-
+# === Given Step: Compose REST API call based on input string ===
 @given('REST test input "{input}"')
 def step_given_rest_input(context, input):
     context.params = {}
     input = input.strip()
 
+    # Common input shortcuts
     if input.lower() in ["any valid request", "any request"]:
         context.params = {"instrument_name": "BTC_USDT", "timeframe": "5m"}
     elif input.lower() in ["empty body or query"]:
         context.params = {}
     else:
+        # Parse parameters from CSV string
         for pair in input.split(','):
             if '=' in pair:
                 key, value = pair.strip().split('=')
@@ -88,10 +91,10 @@ def step_given_rest_input(context, input):
             elif "missing" in pair.lower():
                 continue
 
-            context.params["end"] = str(int(time.time() * 1000))
+        # Add end time if not specified
+        context.params["end"] = str(int(time.time() * 1000))
 
-
-    # dynamic time format transfer
+    # Parse dynamic time strings for start/end if needed
     for key in ["start", "end"]:
         if key in context.params:
             context.params[key] = parse_dynamic_time(context.params[key])
@@ -99,10 +102,12 @@ def step_given_rest_input(context, input):
     if "instrument_name" not in context.params and "timeframe" in context.params:
         context.params["instrument_name"] = "BTC_USDT"
 
+    # Perform the GET request
     context.base_url = context.base_url or "https://api.crypto.com/v2"
     url = f"{context.base_url}/public/get-candlestick"
     context.response = requests.get(url, params=context.params)
 
+    # Attach debug details to Allure
     allure.attach(
         f"URL: {url}\nParams: {context.params}\nStatus: {context.response.status_code}",
         name="Request Details",
@@ -115,6 +120,7 @@ def step_given_rest_input(context, input):
         attachment_type=allure.attachment_type.TEXT
     )
 
+# === Then Step: Validate response based on expected TC keyword ===
 @then('REST expected result should be "{expected}"')
 def step_then_rest_expected(context, expected):
     code = context.response.status_code

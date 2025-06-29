@@ -7,6 +7,7 @@ import time
 import traceback
 import allure
 
+# Helper: Check if WebSocket response contains any error
 def is_error_response(context):
     timeout = time.time() + 5
     while time.time() < timeout:
@@ -26,6 +27,7 @@ def is_error_response(context):
                 return True
     return False
 
+# Given Step: Parse WS subscription input and initialize WebSocket connection
 @given('WS test input "{input}"')
 def step_given_ws_input(context, input):
     context.params = {}
@@ -51,7 +53,7 @@ def step_given_ws_input(context, input):
     if "depth" not in context.params:
         context.params["depth"] = "10"
 
-    if "tc4" not in context.scenario.name.lower():  # Symbols are restricted only if they are not TC4
+    if "tc4" not in context.scenario.name.lower():
         allowed_symbols = {"BTC_USDT", "ETH_USDT", "CRO_USDT"}
         if context.params["instrument_name"] not in allowed_symbols:
             raise ValueError(f"Unsupported instrument_name: {context.params['instrument_name']}. Allowed: {allowed_symbols}")
@@ -99,15 +101,14 @@ def step_given_ws_input(context, input):
             break
         time.sleep(0.5)
 
-# === Modular Assertions for WS-TC1 ~ WS-TC9 ===
+# === Assertions ===
 
 def assert_ws_tc1_subscription(context):
     assert any("result" in m or "method" in m for m in context.ws_messages), "No subscription confirmation found"
 
-
 def assert_ws_tc2_orderbook_present(context):
     book_data = None
-    end_time = time.time() + 20  # 🔁 等待 20 秒
+    end_time = time.time() + 20
     while time.time() < end_time:
         for m in context.ws_messages:
             if "result" in m and "data" in m["result"]:
@@ -119,24 +120,6 @@ def assert_ws_tc2_orderbook_present(context):
             break
         time.sleep(0.5)
     if not book_data:
-        allure.attach(
-            json.dumps(context.ws_messages, indent=2),
-            name="All WS Messages",
-            attachment_type=allure.attachment_type.JSON
-        )
-    assert book_data, "No orderbook data with bids/asks found"
-    context.book_data = book_data
-
-    end_time = time.time() + 15
-    while time.time() < end_time:
-        for m in context.ws_messages:
-            if "result" in m and "data" in m["result"]:
-                book_data = m["result"]["data"][0]
-                break
-        if book_data:
-            break
-        time.sleep(0.5)
-    if not book_data:
         allure.attach(json.dumps(context.ws_messages, indent=2), name="All WS Messages", attachment_type=allure.attachment_type.JSON)
     assert book_data, "No orderbook data with bids/asks found"
     context.book_data = book_data
@@ -144,13 +127,7 @@ def assert_ws_tc2_orderbook_present(context):
 def assert_ws_tc3_validate_format(context):
     if not hasattr(context, 'book_data'):
         assert_ws_tc2_orderbook_present(context)
-    book_data = getattr(context, "book_data", None)
-    if not book_data:
-        for m in context.ws_messages:
-            if "result" in m and "data" in m["result"]:
-                book_data = m["result"]["data"][0]
-                break
-    assert book_data, "No book data to validate format"
+    book_data = context.book_data
     assert isinstance(book_data.get("t", 0), int)
     assert all(isinstance(float(bid[0]), float) for bid in book_data.get("bids", []))
     assert all(isinstance(float(ask[0]), float) for ask in book_data.get("asks", []))
@@ -161,22 +138,20 @@ def assert_ws_tc4_error_expected(context):
 def assert_ws_tc5_depth_limit(context):
     if not hasattr(context, 'book_data'):
         assert_ws_tc2_orderbook_present(context)
-    book_data = getattr(context, "book_data", None)
-    assert book_data, "Missing book_data"
+    book_data = context.book_data
     assert len(book_data["bids"]) <= int(context.params["depth"])
     assert len(book_data["asks"]) <= int(context.params["depth"])
 
 def assert_ws_tc6_bid_ask_not_empty(context):
     if not hasattr(context, 'book_data'):
         assert_ws_tc2_orderbook_present(context)
-    book_data = getattr(context, "book_data", None)
-    assert book_data, "Missing book_data"
+    book_data = context.book_data
     assert len(book_data["bids"]) > 0 and len(book_data["asks"]) > 0, "Bid or ask list is empty"
 
 def assert_ws_tc7_price_quantity_type(context):
     if not hasattr(context, 'book_data'):
         assert_ws_tc2_orderbook_present(context)
-    book_data = getattr(context, "book_data", None)
+    book_data = context.book_data
     for bid in book_data.get("bids", []):
         assert isinstance(float(bid[0]), float)
         assert isinstance(float(bid[1]), float)
@@ -196,11 +171,10 @@ def assert_ws_tc9_duplicate_subscription(context):
     ids = [m.get("id") for m in context.ws_messages if "id" in m]
     assert len(ids) == len(set(ids)), "Duplicate subscription IDs detected"
 
+# Then Step: Run assertions based on expected tag
 @then('WS expected result should be "{expected}"')
 def step_then_ws_expected(context, expected):
     expected = expected.lower()
-
-    # WebSocket 評估摘要 logcat
     logcat_lines = [
         "WebSocket Assertion Evaluation:",
         f"- Expected: {expected}",
@@ -240,4 +214,3 @@ def step_then_ws_expected(context, expected):
     finally:
         if context.ws:
             context.ws.close()
-
