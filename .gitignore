@@ -12,7 +12,7 @@ venv/
 # VS Code
 .vscode/
 
-# Allure test reports (不要放進 main)
+# Allure test reports (do not put into main)
 reports/
 docs/
 

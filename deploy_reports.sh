@@ -3,20 +3,20 @@
 set -e
 timestamp=$(date +%Y%m%d_%H%M%S)
 
-# 先執行本地報告產生腳本
+# Run the local report generation script first
 bash generate_allure_and_index.sh
 
-# 切換到 gh-pages 分支
+# Switch to the gh-pages branch
 echo "🚚 Deploying to gh-pages..."
 git checkout gh-pages
 
-# 從 main 取出 docs/ 最新報告
+# Retrieve the latest docs/ report from the main branch
 git checkout main -- docs/
 
-# 加入並推送報告
+# Add and push the updated report
 git add docs/
 git commit -m "📊 Update test reports at $timestamp"
 git push origin gh-pages
 
-# 切回 main
+# Switch back to main
 git checkout main
