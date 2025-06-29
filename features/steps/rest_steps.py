@@ -120,7 +120,7 @@ def step_given_rest_input(context, input):
         attachment_type=allure.attachment_type.TEXT
     )
 
-# === Then Step: Validate response based on expected TC keyword ===
+# === Then Step: Validate response based on expected TC keywords ===
 @then('REST expected result should be "{expected}"')
 def step_then_rest_expected(context, expected):
     code = context.response.status_code
