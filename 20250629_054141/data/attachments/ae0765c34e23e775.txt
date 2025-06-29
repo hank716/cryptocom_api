@@ -1,0 +1,2 @@
+[PASS] Assertion Passed
+Reason: Valid request returned 300 candlesticks
