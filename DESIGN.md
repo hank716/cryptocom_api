@@ -19,7 +19,7 @@ Followed several principles for test case design:
 - **Boundary Value Analysis**: especially for numeric fields such as depth or granularity
 - **Negative Testing**: validate error handling for invalid symbols or timeframes
 - **Schema Validation**: all responses are checked against expected JSON schemas
-- **Retry Logic**: especially for WebSocket connections
+- **Retry Logic**: especially for WebSocket connection
 
 ---
 
