@@ -1,0 +1,5 @@
+REST Assertion Evaluation:
+- Expected: TC8 - code != 0 due to invalid timeframe
+- HTTP Status: 200
+- JSON Code: 40003
+- Response Body: {"id":-1,"code":40003,"message":"Invalid request"}

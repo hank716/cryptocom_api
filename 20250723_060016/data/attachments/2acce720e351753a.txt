@@ -1,0 +1,12 @@
+WebSocket Assertion Evaluation:
+- Expected: tc2
+- Message Count: 2
+- Error: None
+- First Message: [
+  {
+    "id": 1,
+    "method": "subscribe",
+    "code": 0,
+    "channel": "book.BTC_USDT.10"
+  }
+]
