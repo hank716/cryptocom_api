@@ -1,2 +1,0 @@
-[PASS] Assertion Passed
-Reason: Candlestick entries have required fields
