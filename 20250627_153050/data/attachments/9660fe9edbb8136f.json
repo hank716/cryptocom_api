@@ -1,9 +1,0 @@
-{
-  "method": "subscribe",
-  "params": {
-    "channels": [
-      "book.BTC_USDT.'abc' or -10"
-    ]
-  },
-  "id": 1
-}
